@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HR Portal - Employee Directory</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="page">
+  <nav class="sidebar">
+    <img src="image/logo-header.png" alt="HR Portal Logo" class="sidebar-logo">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="announcements.html" class="nav-link">Announcements</a>
+    <a href="employeedirectory.html" class="nav-link active">Employee Directory</a>
+    <a href="leave.html" class="nav-link">Leave</a>
+    <a href="audit.html" class="nav-link">Audit Trail</a>
+    <a href="#" class="nav-link logout" onclick="onLogoutClick(event)">Logout</a>
+    
+  </nav>
+  <main class="main-content">
+    <h1>Employee Directory</h1>
+    <p>Search employees by name, department, or role.</p>
+    <div class="card">
+      <div class="search-row">
+        <input id="searchInput" placeholder="Search employees..." oninput="filterEmployees()" />
+      </div>
+      <table id="employeeTable">
+        <thead>
+          <tr><th>Name</th><th>Department</th><th>Role</th><th>Email</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Jane Smith</td><td>Finance</td><td>Accountant</td><td>jane.smith@company.com</td></tr>
+          <tr><td>Michael Lee</td><td>HR</td><td>HR Manager</td><td>michael.lee@company.com</td></tr>
+          <tr><td>Alice Johnson</td><td>IT</td><td>DevOps Engineer</td><td>alice.johnson@company.com</td></tr>
+          <tr><td>David Kim</td><td>Sales</td><td>Sales Executive</td><td>david.kim@company.com</td></tr>
+          <tr><td>Rashida Ali</td><td>Operations</td><td>Operations Lead</td><td>rashida.ali@company.com</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+  <script>
+    function onLogoutClick(event) {
+      event.preventDefault();
+      if (confirm('Do you really want to log out?')) {
+        window.location.href = 'login.html';
+      }
+    }
+    function filterEmployees() {
+      const filter = document.getElementById('searchInput').value.toLowerCase();
+      const rows = document.querySelectorAll('#employeeTable tbody tr');
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(filter) ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>

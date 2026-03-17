@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HR Portal - Home</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="page">
+  <nav class="sidebar">
+    <img src="image/logo-header.png" alt="HR Portal Logo" class="sidebar-logo">
+    <a href="index.html" class="nav-link active">Home</a>
+    <a href="announcements.html" class="nav-link">Announcements</a>
+    <a href="employeedirectory.html" class="nav-link">Employee Directory</a>
+    <a href="leave.html" class="nav-link">Leave</a>
+    <a href="audit.html" class="nav-link">Audit Trail</a>
+    <a href="#" class="nav-link logout" onclick="onLogoutClick(event)">Logout</a>
+  </nav>
+  <main class="main-content">
+    <h1>Home</h1>
+    <p>Welcome to the HR Portal. Use the sidebar to navigate.</p>
+    <div class="card user-card">
+      <p class="date-small">March 18, 2026</p>
+      <h3>Welcome, John Doe</h3>
+      <p><strong>Position:</strong> HR Manager</p>
+      <p><strong>Department:</strong> Human Resources</p>
+    </div>
+    <div class="stats-grid">
+      <a href="employeedirectory.html" class="card"><h3>Total Employees</h3><p>158</p></a>
+      <a href="leave.html" class="card"><h3>Pending Leaves</h3><p>12</p></a>
+      <a href="audit.html" class="card"><h3>Open Audits</h3><p>2</p></a>
+    </div>
+  </main>
+  <script>
+    function onLogoutClick(event) {
+      event.preventDefault();
+      if (confirm('Do you really want to log out?')) {
+        window.location.href = 'login.html';
+      }
+    }
+  </script>
+</body>
+</html>
