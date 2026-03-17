@@ -12,7 +12,8 @@
     <a href="index.php" class="nav-link active">Home</a>
     <a href="announcements.php" class="nav-link">Announcements</a>
     <a href="employeedirectory.php" class="nav-link">Employee Directory</a>
-    <a href="leave.php" class="nav-link">Leave</a>
+    <a href="leave.php" class="nav-link">Leave Request</a>
+    <a href="myleave.php" class="nav-link">My Leave</a>
     <a href="audit.php" class="nav-link">Audit Trail</a>
     <a href="logout.php" class="nav-link logout">Logout</a>
   </nav>
