@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HR Portal - Register</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-card">
+      <div class="brand">HR PORTAL</div>
+      <h1>Create Account</h1>
+      <p>Register to access the HR Portal.</p>
+      <form class="login-form" action="register-handler.php" method="post">
+        <label for="name">Full Name</label>
+        <input id="name" name="name" type="text" placeholder="John Doe" required />
+        
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" placeholder="name@example.com" required />
+        
+        <label for="position">Position</label>
+        <input id="position" name="position" type="text" placeholder="e.g., HR Manager" required />
+        
+        <label for="department">Department</label>
+        <input id="department" name="department" type="text" placeholder="e.g., Human Resources" required />
+        
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="••••••••" required />
+        
+        <label for="confirm_password">Confirm Password</label>
+        <input id="confirm_password" name="confirm_password" type="password" placeholder="••••••••" required />
+        
+        <button type="submit">Create Account</button>
+      </form>
+      <div class="login-footer">Already have an account? <a href="login.html">Sign in</a></div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,3 +1,4 @@
+<?php require 'auth-check.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +7,6 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="page">
-  <?php require 'auth-check.php'; ?>
   <nav class="sidebar">
     <img src="image/logo-header.png" alt="HR Portal Logo" class="sidebar-logo">
     <a href="index.php" class="nav-link active">Home</a>
@@ -21,9 +21,9 @@
     <p>Welcome to the HR Portal. Use the sidebar to navigate.</p>
     <div class="card user-card">
       <p class="date-small">March 18, 2026</p>
-      <h3>Welcome, <?php echo $_SESSION['name']; ?></h3>
-      <p><strong>Position:</strong> <?php echo $_SESSION['position']; ?></p>
-      <p><strong>Department:</strong> <?php echo $_SESSION['department']; ?></p>
+      <h3>Welcome, <?php echo isset($_SESSION['name']) ? htmlspecialchars($_SESSION['name']) : 'Guest'; ?></h3>
+      <p><strong>Position:</strong> <?php echo isset($_SESSION['position']) ? htmlspecialchars($_SESSION['position']) : 'N/A'; ?></p>
+      <p><strong>Department:</strong> <?php echo isset($_SESSION['department']) ? htmlspecialchars($_SESSION['department']) : 'N/A'; ?></p>
     </div>
     <div class="stats-grid">
       <a href="employeedirectory.php" class="card"><h3>Total Employees</h3><p>158</p></a>
