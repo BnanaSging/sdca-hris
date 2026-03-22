@@ -27,8 +27,19 @@
       <p><strong>Department:</strong> <?php echo isset($_SESSION['department']) ? htmlspecialchars($_SESSION['department']) : 'N/A'; ?></p>
     </div>
     <div class="stats-grid">
-      <a href="employeedirectory.php" class="card"><h3>Total Employees</h3><p>158</p></a>
-      <a href="leave.php" class="card"><h3>Pending Leaves</h3><p>12</p></a>
+      <?php
+        $users = file_exists('users.json') ? json_decode(file_get_contents('users.json'), true) : [];
+        $leaves = file_exists('leaves.json') ? json_decode(file_get_contents('leaves.json'), true) : [];
+        $total_employees = count($users);
+        $pending_leaves = 0;
+        foreach ($leaves as $leave) {
+          if (isset($leave['status']) && strtolower($leave['status']) === 'pending') {
+            $pending_leaves++;
+          }
+        }
+      ?>
+      <a href="employeedirectory.php" class="card"><h3>Total Employees</h3><p><?php echo $total_employees; ?></p></a>
+      <a href="leave.php" class="card"><h3>Pending Leaves</h3><p><?php echo $pending_leaves; ?></p></a>
       <a href="audit.php" class="card"><h3>Open Audits</h3><p>2</p></a>
     </div>
   </main>

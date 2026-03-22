@@ -5,6 +5,8 @@ require 'config.php';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $gender = isset($_POST['gender']) ? $_POST['gender'] : '';
+      $birthday = isset($_POST['birthday']) ? $_POST['birthday'] : '';
     $name = isset($_POST['name']) ? trim($_POST['name']) : '';
     $email = isset($_POST['email']) ? trim($_POST['email']) : '';
     $password = isset($_POST['password']) ? $_POST['password'] : '';
@@ -12,8 +14,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $position = isset($_POST['position']) ? trim($_POST['position']) : '';
     $department = isset($_POST['department']) ? trim($_POST['department']) : '';
     
-    if (empty($name) || empty($email) || empty($password) || empty($confirm_password)) {
-        $error = 'Please fill in all required fields';
+    if (empty($name) || empty($email) || empty($password) || empty($confirm_password) || empty($birthday)) {
+      $error = 'Please fill in all required fields';
+    } else if (empty($gender)) {
+      $error = 'Please select a gender';
     } else if ($password !== $confirm_password) {
         $error = 'Passwords do not match';
     } else if (strlen($password) < 6) {
@@ -23,7 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         
-        if (addUser($name, $email, $hashed_password, $position, $department)) {
+        $leave_package = isset($_POST['leave_package']) ? $_POST['leave_package'] : 'normal';
+        if (addUser($name, $email, $hashed_password, $position, $department, $leave_package, $birthday, $gender)) {
             $user = findUserByEmail($email);
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['email'] = $user['email'];

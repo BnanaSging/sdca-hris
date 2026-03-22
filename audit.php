@@ -19,7 +19,43 @@
   </nav>
   <main class="main-content">
     <h1>Audit Trail</h1>
-    <div class="card"><p>Recent changes are logged here for compliance.</p></div>
+    <div class="card">
+      <p>Recent changes are logged here for compliance.</p>
+      <table style="width:100%;margin-top:20px;">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Action</th>
+            <th>Employee</th>
+            <th>Type</th>
+            <th>Dates</th>
+            <th>By</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php
+        $auditlog_file = 'auditlog.json';
+        $auditlog = file_exists($auditlog_file) ? json_decode(file_get_contents($auditlog_file), true) : [];
+        if (empty($auditlog)) {
+          echo '<tr><td colspan="7" style="text-align:center;color:#999;">No audit trail entries yet.</td></tr>';
+        } else {
+          foreach (array_reverse($auditlog) as $entry) {
+            echo '<tr>';
+            echo '<td>' . htmlspecialchars($entry['timestamp']) . '</td>';
+            echo '<td>' . htmlspecialchars($entry['action']) . '</td>';
+            echo '<td>' . htmlspecialchars($entry['employee_name']) . '</td>';
+            echo '<td>' . htmlspecialchars($entry['leave_type']) . '</td>';
+            echo '<td>' . htmlspecialchars($entry['start_date']) . ' to ' . htmlspecialchars($entry['end_date']) . '</td>';
+            echo '<td>' . htmlspecialchars($entry['approved_by']) . '</td>';
+            echo '<td>' . htmlspecialchars($entry['new_status']) . '</td>';
+            echo '</tr>';
+          }
+        }
+        ?>
+        </tbody>
+      </table>
+    </div>
   </main>
 </body>
 </html>

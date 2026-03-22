@@ -36,15 +36,21 @@ function addUser($name, $email, $password, $position, $department) {
         }
     }
     
-    $new_user = [
-        'id' => count($users) + 1,
-        'name' => $name,
-        'email' => $email,
-        'password' => $password,
-        'position' => $position,
-        'department' => $department,
-        'created_at' => date('Y-m-d H:i:s')
-    ];
+        $leave_package = func_num_args() > 5 ? func_get_arg(5) : 'normal';
+        $birthday = func_num_args() > 6 ? func_get_arg(6) : '';
+        $gender = func_num_args() > 7 ? func_get_arg(7) : '';
+        $new_user = [
+            'id' => count($users) + 1,
+            'name' => $name,
+            'email' => $email,
+            'password' => $password,
+            'position' => $position,
+            'department' => $department,
+            'leave_package' => $leave_package,
+            'birthday' => $birthday,
+            'gender' => $gender,
+            'created_at' => date('Y-m-d H:i:s')
+        ];
     
     $users[] = $new_user;
     file_put_contents($db_file, json_encode($users, JSON_PRETTY_PRINT));

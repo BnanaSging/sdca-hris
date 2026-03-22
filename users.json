@@ -1,29 +1,29 @@
 [
     {
         "id": 1,
-        "name": "mica ella elisan",
-        "email": "micaella.elisan@sdca.edu.ph",
-        "password": "$2y$12$If9Cnx4f5nmCIhPS5S.DDO6rIhKSBDZZLALAvii6wMxdPgj9Xt\/AG",
-        "position": "Program Chair",
+        "name": "Matt Mayuga",
+        "email": "matthew.mayuga@sdca.edu.ph",
+        "password": "$2y$12$J8dUS\/XU0MP98iKC7oGweuKrgCv05tdx2uyl2EWAZJon\/vrWTnZAi",
+        "position": "Faculty Members (Professors \/ Instructors)",
         "department": "IT",
-        "created_at": "2026-03-22 09:23:48"
+        "leave_package": "newly_hired",
+        "birthday": "2001-01-13",
+        "created_at": "2026-03-22 10:10:34",
+        "leaves_used": {
+            "Vacation": 3,
+            "Sick Leave": 3
+        }
     },
     {
         "id": 2,
         "name": "vincent estacio",
         "email": "vince.estacio@sdca.edu.ph",
-        "password": "$2y$12$2htija829QKrL0rIVLR1LOA2k4FHdPXtT3kdRjO2VEAxOeeXPSxTW",
-        "position": "Dean",
+        "password": "$2y$12$NuNNls2dTThQSnUFEiClNu4lTMekhX0amUquIeYvLQ468LuZ8L\/vi",
+        "position": "Program Chair \/ Department Head",
         "department": "IT",
-        "created_at": "2026-03-22 09:24:15"
-    },
-    {
-        "id": 3,
-        "name": "john doe",
-        "email": "johndoe@sdca.edu.ph",
-        "password": "$2y$12$PhWbYJKwA002X4ZGr6YhyuuMezEJullAGx.2MTsjHjuLn\/VJlKYtS",
-        "position": "Faculty Members (Professors \/ Instructors)",
-        "department": "IT",
-        "created_at": "2026-03-22 09:42:38"
+        "leave_package": "newly_hired",
+        "birthday": "2001-08-28",
+        "gender": "male",
+        "created_at": "2026-03-22 10:25:05"
     }
 ]

@@ -19,10 +19,32 @@
         <input id="email" name="email" type="email" placeholder="name@example.com" required />
         
         <label for="position">Position</label>
-        <input id="position" name="position" type="text" placeholder="e.g., HR Manager" required />
+        <select id="position" name="position" required>
+          <option value="VPAA">VPAA</option>
+          <option value="Dean (Highest)">Dean</option>
+          <option value="Program Chair / Department Head">Program Chair / Department Head</option>
+          <option value="Faculty Members (Professors / Instructors)">Faculty Members (Professors / Instructors)</option>
+          <option value="Administrative Staff">Administrative Staff</option>
+        </select>
         
         <label for="department">Department</label>
         <input id="department" name="department" type="text" placeholder="e.g., Human Resources" required />
+
+        <label for="birthday">Birthday</label>
+        <input id="birthday" name="birthday" type="date" required />
+
+        <label for="gender">Gender</label>
+        <select id="gender" name="gender" required>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+
+        <label for="leave_package">Leave Package</label>
+        <select id="leave_package" name="leave_package" required>
+          <option value="normal">Normal Employee Package (15 VL, 15 SL, 1 BL, 15 PL)</option>
+          <option value="newly_hired">Newly Hired (3 VL, 3 SL, 1 BL)</option>
+          <option value="custom">Custom Package</option>
+        </select>
         
         <label for="password">Password</label>
         <input id="password" name="password" type="password" placeholder="••••••••" required />

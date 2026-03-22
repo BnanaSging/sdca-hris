@@ -15,22 +15,28 @@ $error = '';
 // Handle delete request
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete') {
     $leave_id = isset($_POST['leave_id']) ? intval($_POST['leave_id']) : 0;
-    
     if ($leave_id > 0) {
-        $leaves = json_decode(file_get_contents($leave_file), true);
-        $original_count = count($leaves);
-        
+      $leaves = json_decode(file_get_contents($leave_file), true);
+      $original_count = count($leaves);
+      $can_delete = false;
+      foreach ($leaves as $leave) {
+        if ($leave['id'] == $leave_id && $leave['user_id'] == $_SESSION['user_id']) {
+          if (strtolower($leave['status']) === 'pending' || strtolower($leave['status']) === 'denied') {
+            $can_delete = true;
+          }
+          break;
+        }
+      }
+      if ($can_delete) {
         // Remove the leave with matching ID and user_id
         $leaves = array_filter($leaves, function($leave) use ($leave_id) {
-            return !($leave['id'] == $leave_id && $leave['user_id'] == $_SESSION['user_id']);
+          return !($leave['id'] == $leave_id && $leave['user_id'] == $_SESSION['user_id']);
         });
-        
-        if (count($leaves) < $original_count) {
-            file_put_contents($leave_file, json_encode(array_values($leaves), JSON_PRETTY_PRINT));
-            $message = 'Leave application deleted successfully!';
-        } else {
-            $error = 'Could not delete leave application';
-        }
+        file_put_contents($leave_file, json_encode(array_values($leaves), JSON_PRETTY_PRINT));
+        $message = 'Leave application deleted successfully!';
+      } else {
+        $error = 'You cannot delete an approved leave application.';
+      }
     }
 }
 
@@ -57,6 +63,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = htmlspecialchars($leave_type) . ' must be applied at least 3 days in advance';
             }
         }
+        // Gender-based leave rules
+        if (in_array($leave_type, ['Maternity Leave', 'Paternity Leave'])) {
+          $users = getUsers();
+          $current_user = null;
+          foreach ($users as $u) {
+            if ($u['id'] == $_SESSION['user_id']) {
+              $current_user = $u;
+              break;
+            }
+          }
+          if ($current_user && !empty($current_user['gender'])) {
+            if ($leave_type === 'Maternity Leave' && strtolower($current_user['gender']) !== 'female') {
+              $error = 'Only female users can apply for Maternity Leave.';
+            }
+            if ($leave_type === 'Paternity Leave' && strtolower($current_user['gender']) !== 'male') {
+              $error = 'Only male users can apply for Paternity Leave.';
+            }
+          }
+        }
+      // Birthday Leave: only in birth month
+      if ($leave_type === 'Birthday Leave') {
+        $users = getUsers();
+        $current_user = null;
+        foreach ($users as $u) {
+          if ($u['id'] == $_SESSION['user_id']) {
+            $current_user = $u;
+            break;
+          }
+        }
+        if ($current_user && !empty($current_user['birthday'])) {
+          $birth_month = (new DateTime($current_user['birthday']))->format('m');
+          $apply_month = $start_date_obj->format('m');
+          if ($birth_month !== $apply_month) {
+            $error = 'Birthday Leave can only be applied during your birth month.';
+          }
+        } else {
+          $error = 'Birthday not set for your account.';
+        }
+      }
         // Sick Leave, Personal Leave, Other: allow past dates (no advance requirement)
         
         if (!$error && $end_date_obj < $start_date_obj) {
@@ -92,26 +137,79 @@ $user_leaves = array_filter($leaves, function($leave) {
 });
 
 // Calculate remaining leaves
-$leave_types = [
-    'Vacation' => 20,
-    'Sick Leave' => 10,
-    'Personal Leave' => 5,
-    'Maternity Leave' => 90,
-    'Paternity Leave' => 14,
-    'Other' => 0
-];
+
+// Get user's leave package
+$users = getUsers();
+$current_user = null;
+foreach ($users as $u) {
+  if ($u['id'] == $_SESSION['user_id']) {
+    $current_user = $u;
+    break;
+  }
+}
+
+$leave_types = [];
+if ($current_user && isset($current_user['leave_package'])) {
+  switch ($current_user['leave_package']) {
+    case 'normal':
+      $leave_types = [
+        'Vacation' => 15,
+        'Sick Leave' => 15,
+        'Birthday Leave' => 1,
+        'Personal Leave' => 15,
+      ];
+      break;
+    case 'newly_hired':
+      $leave_types = [
+        'Vacation' => 3,
+        'Sick Leave' => 3,
+        'Birthday Leave' => 1,
+      ];
+      break;
+    case 'custom':
+      $leave_types = [
+        'Vacation' => INF,
+        'Sick Leave' => INF,
+        'Birthday Leave' => INF,
+        'Personal Leave' => INF,
+        'Maternity Leave' => INF,
+        'Paternity Leave' => INF,
+        'Other' => INF
+      ];
+      break;
+    default:
+      $leave_types = [
+        'Vacation' => 15,
+        'Sick Leave' => 15,
+        'Birthday Leave' => 1,
+        'Personal Leave' => 15,
+      ];
+  }
+} else {
+  // fallback
+  $leave_types = [
+    'Vacation' => 15,
+    'Sick Leave' => 15,
+    'Birthday Leave' => 1,
+    'Personal Leave' => 15,
+  ];
+}
 
 $remaining_leaves = [];
 foreach ($leave_types as $type => $total) {
-    // Calculate approved leaves used for this type
+    // Use leaves_used from users.json if available (for accurate deduction)
     $used = 0;
-    foreach ($user_leaves as $leave) {
+    if ($current_user && isset($current_user['leaves_used'][$type])) {
+      $used = $current_user['leaves_used'][$type];
+    } else {
+      foreach ($user_leaves as $leave) {
         if ($leave['leave_type'] === $type && $leave['status'] === 'Approved') {
-            $start = new DateTime($leave['start_date']);
-            $end = new DateTime($leave['end_date']);
-            $interval = $start->diff($end);
-            $used += $interval->days + 1; // +1 to include the end date
+          $start = new DateTime($leave['start_date']);
+          $end = new DateTime($leave['end_date']);
+          $interval = $start->diff($end);
+          $used += $interval->days + 1; // +1 to include the end date
         }
+      }
     }
     $remaining_leaves[$type] = $total - $used;
 }
@@ -190,8 +288,24 @@ foreach ($leave_types as $type => $total) {
               <option value="Vacation">Vacation</option>
               <option value="Sick Leave">Sick Leave</option>
               <option value="Personal Leave">Personal Leave</option>
-              <option value="Maternity Leave">Maternity Leave</option>
-              <option value="Paternity Leave">Paternity Leave</option>
+              <option value="Birthday Leave">Birthday Leave</option>
+              <?php
+                $users = getUsers();
+                $current_user = null;
+                foreach ($users as $u) {
+                  if ($u['id'] == $_SESSION['user_id']) {
+                    $current_user = $u;
+                    break;
+                  }
+                }
+                if ($current_user && isset($current_user['gender'])) {
+                  if (strtolower($current_user['gender']) === 'female') {
+                    echo '<option value="Maternity Leave">Maternity Leave</option>';
+                  } else if (strtolower($current_user['gender']) === 'male') {
+                    echo '<option value="Paternity Leave">Paternity Leave</option>';
+                  }
+                }
+              ?>
               <option value="Other">Other</option>
             </select>
             <div id="leave-info-text" style="font-size: 0.85rem; color: #666; margin-top: 8px; padding: 8px; background: #f0f9ff; border-radius: 5px; display: none;"></div>
@@ -262,6 +376,7 @@ foreach ($leave_types as $type => $total) {
                   <strong>Reason:</strong> <?php echo htmlspecialchars($leave['reason']); ?>
                 </div>
               </div>
+              <?php if (strtolower($leave['status']) !== 'approved'): ?>
               <div style="margin-top: 12px;">
                 <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this leave application?');">
                   <input type="hidden" name="action" value="delete">
@@ -269,6 +384,7 @@ foreach ($leave_types as $type => $total) {
                   <button type="submit" class="delete-btn">Delete</button>
                 </form>
               </div>
+              <?php endif; ?>
             </div>
           <?php endforeach; ?>
         <?php endif; ?>
