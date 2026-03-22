@@ -1,20 +1,29 @@
 [
     {
         "id": 1,
-        "name": "John Doe",
-        "email": "john.doe@company.com",
-        "password": "$2y$12$A2v5IN839JbKfktuu0PtUuStgvjbvARTxDD8iPuKoexfH0tyOG3GS",
-        "position": "HR Manager",
-        "department": "Human Resources",
-        "created_at": "2026-03-17 21:16:04"
+        "name": "mica ella elisan",
+        "email": "micaella.elisan@sdca.edu.ph",
+        "password": "$2y$12$If9Cnx4f5nmCIhPS5S.DDO6rIhKSBDZZLALAvii6wMxdPgj9Xt\/AG",
+        "position": "Program Chair",
+        "department": "IT",
+        "created_at": "2026-03-22 09:23:48"
     },
     {
         "id": 2,
-        "name": "Vincent Estacio",
-        "email": "vincent.estacio@sdca.edu.ph",
-        "password": "$2y$12$eVmTSsSCZf99ifdFIZBiB.F4\/ZVJHpyZ8TUwh3u0k65OcQeq4v0rW",
+        "name": "vincent estacio",
+        "email": "vince.estacio@sdca.edu.ph",
+        "password": "$2y$12$2htija829QKrL0rIVLR1LOA2k4FHdPXtT3kdRjO2VEAxOeeXPSxTW",
         "position": "Dean",
         "department": "IT",
-        "created_at": "2026-03-17 21:16:29"
+        "created_at": "2026-03-22 09:24:15"
+    },
+    {
+        "id": 3,
+        "name": "john doe",
+        "email": "johndoe@sdca.edu.ph",
+        "password": "$2y$12$PhWbYJKwA002X4ZGr6YhyuuMezEJullAGx.2MTsjHjuLn\/VJlKYtS",
+        "position": "Faculty Members (Professors \/ Instructors)",
+        "department": "IT",
+        "created_at": "2026-03-22 09:42:38"
     }
 ]

@@ -1,1 +1,13 @@
-[]
+[
+    {
+        "id": 1,
+        "user_id": 2,
+        "employee_name": "vincent estacio",
+        "start_date": "2026-03-26",
+        "end_date": "2026-03-30",
+        "leave_type": "Vacation",
+        "reason": "zoom",
+        "status": "Pending",
+        "applied_date": "2026-03-22 09:24:49"
+    }
+]
