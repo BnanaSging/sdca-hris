@@ -199,8 +199,13 @@ $remaining_leaves = [];
 foreach ($leave_types as $type => $total) {
     // Use leaves_used from users.json if available (for accurate deduction)
     $used = 0;
+    $extra = 0;
     if ($current_user && isset($current_user['leaves_used'][$type])) {
       $used = $current_user['leaves_used'][$type];
+      if ($used < 0) {
+        $extra = abs($used);
+        $used = 0;
+      }
     } else {
       foreach ($user_leaves as $leave) {
         if ($leave['leave_type'] === $type && $leave['status'] === 'Approved') {
@@ -211,7 +216,7 @@ foreach ($leave_types as $type => $total) {
         }
       }
     }
-    $remaining_leaves[$type] = $total - $used;
+    $remaining_leaves[$type] = ($total + $extra) - $used;
 }
 ?>
 <!DOCTYPE html>
@@ -333,9 +338,23 @@ foreach ($leave_types as $type => $total) {
       </div>
       
       <div class="leave-card">
-        <h2>My Remaining Leave</h2>
+        <h2>My Leave Balances</h2>
         <?php foreach ($leave_types as $type => $total): 
           $remaining = $remaining_leaves[$type];
+          $used = 0;
+          if ($current_user && isset($current_user['leaves_used'][$type])) {
+            $used = $current_user['leaves_used'][$type];
+          } else {
+            foreach ($user_leaves as $leave) {
+              if ($leave['leave_type'] === $type && $leave['status'] === 'Approved') {
+                $start = new DateTime($leave['start_date']);
+                $end = new DateTime($leave['end_date']);
+                $interval = $start->diff($end);
+                $used += $interval->days + 1;
+              }
+            }
+          }
+          if ($used < 0) $used = 0;
           $class = '';
           if ($remaining <= 0) {
             $class = 'critical';
@@ -345,7 +364,8 @@ foreach ($leave_types as $type => $total) {
         ?>
           <div class="leave-type-row">
             <span class="leave-type-name"><?php echo htmlspecialchars($type); ?></span>
-            <span class="leave-count <?php echo $class; ?>"><?php echo $remaining; ?> days</span>
+            <span class="leave-count <?php echo $class; ?>"><?php echo $remaining; ?> days left</span>
+            <span style="font-size:0.95em; color:#888; margin-left:10px;">(used: <?php echo $used; ?>)</span>
           </div>
         <?php endforeach; ?>
       </div>

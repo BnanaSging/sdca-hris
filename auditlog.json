@@ -34,5 +34,29 @@
         "approved_by": "vincent estacio",
         "old_status": "Pending",
         "new_status": "Approved"
+    },
+    {
+        "timestamp": "2026-03-22 12:11:20",
+        "action": "Add Leave Balance",
+        "leave_type": "Sick Leave",
+        "amount_added": 2,
+        "employee_name": "Matt Mayuga",
+        "by": "vincent estacio"
+    },
+    {
+        "timestamp": "2026-03-22 12:17:16",
+        "action": "Add Leave Balance",
+        "leave_type": "Vacation",
+        "amount_added": 10,
+        "employee_name": "Matt Mayuga",
+        "by": "vincent estacio"
+    },
+    {
+        "timestamp": "2026-03-22 12:19:27",
+        "action": "Add Leave Balance",
+        "leave_type": "Vacation",
+        "amount_added": 5,
+        "employee_name": "Matt Mayuga",
+        "by": "vincent estacio"
     }
 ]

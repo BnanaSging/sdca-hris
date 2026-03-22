@@ -36,16 +36,6 @@ $users = getUsers();
         if (empty($users)) {
           echo '<div style="text-align: center; padding: 20px; color: #999; width:100%;">No employees registered yet.</div>';
         } else {
-          $self = null;
-          $others = [];
-          foreach ($users as $user) {
-            if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $user['id']) {
-              $self = $user;
-            } else {
-              $others[] = $user;
-            }
-          }
-          $ordered = array_merge($self ? [$self] : [], $others);
           $hierarchy = [
             'VPAA' => 1,
             'Dean (Highest)' => 2,
@@ -53,6 +43,12 @@ $users = getUsers();
             'Faculty Members (Professors / Instructors)' => 4,
             'Administrative Staff' => 5
           ];
+          // Sort users by hierarchy (lowest number = highest position)
+          usort($users, function($a, $b) use ($hierarchy) {
+            $posA = isset($hierarchy[$a['position']]) ? $hierarchy[$a['position']] : PHP_INT_MAX;
+            $posB = isset($hierarchy[$b['position']]) ? $hierarchy[$b['position']] : PHP_INT_MAX;
+            return $posA - $posB;
+          });
           $current_user = null;
           foreach ($users as $u) {
             if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $u['id']) {
@@ -60,29 +56,22 @@ $users = getUsers();
               break;
             }
           }
-          foreach ($ordered as $user) {
+          foreach ($users as $user) {
               $is_self = (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $user['id']);
               $gender = isset($user['gender']) ? strtolower($user['gender']) : '';
               $avatar = $gender === 'female' ? 'woman.png' : 'man.png';
               $cardStyle = $is_self ? 'background:#e0f7fa; font-weight:bold;' : '';
               echo '<div class="employee-card" style="width:260px; min-height:320px; background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.07); padding:22px 18px 16px 18px; position:relative; ' . $cardStyle . '">';
-              echo '<div style="display:flex; flex-direction:column; align-items:center;">';
-              echo '<img src="image/' . $avatar . '" alt="Avatar" style="width:70px; height:70px; border-radius:50%; background:#f0f0f0; margin-bottom:12px;">';
+              echo '<div style="display:flex; flex-direction:column; align-items:flex-start;">';
+              echo '<img src="image/' . $avatar . '" alt="Avatar" style="width:70px; height:70px; border-radius:50%; background:#f0f0f0; margin-bottom:12px; align-self:center;">';
               echo '<div style="font-size:1.15em; font-weight:600; margin-bottom:2px;">' . htmlspecialchars($user['name']) . '</div>';
               echo '<div style="color:#666; font-size:0.98em; margin-bottom:8px;">' . htmlspecialchars($user['position']) . '</div>';
               echo '<div style="color:#888; font-size:0.95em; margin-bottom:8px;">' . htmlspecialchars($user['department']) . '</div>';
               echo '<div style="color:#888; font-size:0.95em; margin-bottom:8px;">' . htmlspecialchars($user['email']) . '</div>';
               echo '<div style="color:#888; font-size:0.95em; margin-bottom:8px;">Gender: ' . htmlspecialchars(ucfirst($gender)) . '</div>';
               echo '<div style="color:#888; font-size:0.95em; margin-bottom:8px;">Birthday: ' . (isset($user['birthday']) ? htmlspecialchars($user['birthday']) : '-') . '</div>';
-              $can_add_leave = false;
-              if (!$is_self && $current_user && isset($hierarchy[$current_user['position']]) && isset($hierarchy[$user['position']])) {
-                if ($hierarchy[$current_user['position']] < $hierarchy[$user['position']]) {
-                  $can_add_leave = true;
-                }
-              }
-              if ($can_add_leave) {
-                echo '<button class="employee-link btn" data-userid="' . $user['id'] . '" data-name="' . htmlspecialchars($user['name']) . '" data-email="' . htmlspecialchars($user['email']) . '" data-department="' . htmlspecialchars($user['department']) . '" data-position="' . htmlspecialchars($user['position']) . '" data-leavepackage="' . (isset($user['leave_package']) ? htmlspecialchars($user['leave_package']) : '') . '" data-gender="' . (isset($user['gender']) ? htmlspecialchars($user['gender']) : '') . '" data-birthday="' . (isset($user['birthday']) ? htmlspecialchars($user['birthday']) : '') . '" style="margin-top:10px; background:#007bff; color:#fff; border:none; border-radius:5px; padding:7px 16px; cursor:pointer;">View Details</button>';
-              }
+              // Show 'View Details' for all users, including self
+              echo '<button class="employee-link btn" data-userid="' . $user['id'] . '" data-name="' . htmlspecialchars($user['name']) . '" data-email="' . htmlspecialchars($user['email']) . '" data-department="' . htmlspecialchars($user['department']) . '" data-position="' . htmlspecialchars($user['position']) . '" data-leavepackage="' . (isset($user['leave_package']) ? htmlspecialchars($user['leave_package']) : '') . '" data-gender="' . (isset($user['gender']) ? htmlspecialchars($user['gender']) : '') . '" data-birthday="' . (isset($user['birthday']) ? htmlspecialchars($user['birthday']) : '') . '" style="margin-top:10px; background:#007bff; color:#fff; border:none; border-radius:5px; padding:7px 16px; cursor:pointer;">View Details</button>';
               echo '</div>';
               echo '</div>';
           }
@@ -102,13 +91,17 @@ $users = getUsers();
           <label for="modal_position">Position</label>
           <select id="modal_position" name="position" required>
             <option value="VPAA">VPAA</option>
-            <option value="Dean (Highest)">Dean (Highest)</option>
-            <option value="Program Chair / Department Head">Program Chair / Department Head</option>
-            <option value="Faculty Members (Professors / Instructors)">Faculty Members (Professors / Instructors)</option>
+            <option value="Dean (Highest)">Dean </option>
+            <option value="Program Chair / Department Head">Program Chair</option>
+            <option value="Faculty Members (Professors / Instructors)">Faculty Members</option>
             <option value="Administrative Staff">Administrative Staff</option>
           </select>
           <label for="modal_department">Department</label>
-          <input id="modal_department" name="department" type="text" required />
+          <select id="modal_department" name="department" required>
+            <option value="BSIT">BSIT</option>
+            <option value="BMMA">BMMA</option>
+            <option value="BACCOM">BACCOM</option>
+          </select>
 
           <label for="modal_birthday">Birthday</label>
           <input id="modal_birthday" name="birthday" type="date" required />
@@ -187,7 +180,7 @@ $users = getUsers();
     <div><strong>Leave Package:</strong> <span id="empDetailLeavePackage"></span></div>
     <div><strong>Gender:</strong> <span id="empDetailGender"></span></div>
     <div><strong>Birthday:</strong> <span id="empDetailBirthday"></span></div>
-    <form id="addLeaveBalanceForm" action="add-leave-balance.php" method="post" style="margin-top:18px;">
+    <form id="addLeaveBalanceForm" action="add-leave-balance.php" method="post" style="margin-top:18px; display:none;">
       <input type="hidden" name="user_id" id="addLeaveUserId" value="">
       <label for="leaveTypeSelect"><strong>Leave Type:</strong></label>
       <select name="leave_type" id="leaveTypeSelect" required>
@@ -201,8 +194,46 @@ $users = getUsers();
       </select>
       <label for="leaveAmountInput"><strong>Amount to Add:</strong></label>
       <input type="number" name="amount" id="leaveAmountInput" min="1" required style="width:80px;">
-      <button type="submit" class="btn" style="margin-left:10px;">Add Leave Balance</button>
+      <button type="submit" class="btn" style="margin-left:10px;">Add Leave</button>
     </form>
+    <script>
+      // Hide add leave form if viewing own details or a higher/equal-up
+      document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('employeeDetailModal');
+        const addLeaveForm = document.getElementById('addLeaveBalanceForm');
+        const addLeaveUserId = document.getElementById('addLeaveUserId');
+        // PHP: expose hierarchy and current user info
+        const hierarchy = <?php echo json_encode([
+          'VPAA' => 1,
+          'Dean (Highest)' => 2,
+          'Program Chair / Department Head' => 3,
+          'Faculty Members (Professors / Instructors)' => 4,
+          'Administrative Staff' => 5
+        ]); ?>;
+        const currentUserId = <?php echo json_encode(isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null); ?>;
+        const currentUserPosition = <?php echo json_encode(isset($current_user['position']) ? $current_user['position'] : null); ?>;
+        document.querySelectorAll('.employee-link').forEach(function(link) {
+          link.addEventListener('click', function() {
+            setTimeout(function() {
+              const viewedUserId = addLeaveUserId.value;
+              const viewedUserPosition = link.getAttribute('data-position');
+              let showForm = true;
+              if (viewedUserId === currentUserId) {
+                showForm = false;
+              } else if (hierarchy[currentUserPosition] >= hierarchy[viewedUserPosition]) {
+                showForm = false;
+              } else if (hierarchy[currentUserPosition] > hierarchy[viewedUserPosition]) {
+                // Only allow if current user is numerically less (higher) than viewed user
+                showForm = true;
+              } else {
+                showForm = false;
+              }
+              addLeaveForm.style.display = showForm ? 'block' : 'none';
+            }, 0);
+          });
+        });
+      });
+    </script>
     <button id="closeEmployeeDetailModal" style="position:absolute; top:8px; right:12px; background:none; border:none; font-size:1.5em; color:#888; cursor:pointer;">&times;</button>
   </div>
 </div>

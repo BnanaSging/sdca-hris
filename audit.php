@@ -20,7 +20,7 @@
   <main class="main-content">
     <h1>Audit Trail</h1>
     <div class="card">
-      <p>Recent changes are logged here for compliance.</p>
+      <p>Leave Approvals</p>
       <table style="width:100%;margin-top:20px;">
         <thead>
           <tr>
@@ -37,20 +37,62 @@
         <?php
         $auditlog_file = 'auditlog.json';
         $auditlog = file_exists($auditlog_file) ? json_decode(file_get_contents($auditlog_file), true) : [];
-        if (empty($auditlog)) {
-          echo '<tr><td colspan="7" style="text-align:center;color:#999;">No audit trail entries yet.</td></tr>';
-        } else {
-          foreach (array_reverse($auditlog) as $entry) {
+        $has_approval = false;
+        foreach (array_reverse($auditlog) as $entry) {
+          if (($entry['action'] ?? '') === 'Approve') {
+            $has_approval = true;
             echo '<tr>';
             echo '<td>' . htmlspecialchars($entry['timestamp']) . '</td>';
             echo '<td>' . htmlspecialchars($entry['action']) . '</td>';
-            echo '<td>' . htmlspecialchars($entry['employee_name']) . '</td>';
-            echo '<td>' . htmlspecialchars($entry['leave_type']) . '</td>';
-            echo '<td>' . htmlspecialchars($entry['start_date']) . ' to ' . htmlspecialchars($entry['end_date']) . '</td>';
-            echo '<td>' . htmlspecialchars($entry['approved_by']) . '</td>';
-            echo '<td>' . htmlspecialchars($entry['new_status']) . '</td>';
+            echo '<td>' . htmlspecialchars($entry['employee_name'] ?? '-') . '</td>';
+            echo '<td>' . htmlspecialchars($entry['leave_type'] ?? '-') . '</td>';
+            $start = $entry['start_date'] ?? '';
+            $end = $entry['end_date'] ?? '';
+            echo '<td>' . htmlspecialchars($start) . ($start && $end ? ' to ' : '') . htmlspecialchars($end) . '</td>';
+            echo '<td>' . htmlspecialchars($entry['approved_by'] ?? '-') . '</td>';
+            echo '<td>' . htmlspecialchars($entry['new_status'] ?? '-') . '</td>';
             echo '</tr>';
           }
+        }
+        if (!$has_approval) {
+          echo '<tr><td colspan="7" style="text-align:center;color:#999;">No leave approvals yet.</td></tr>';
+        }
+        ?>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top: 32px;">
+      <p>Leave Balance Additions</p>
+      <table style="width:100%;margin-top:20px;">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Action</th>
+            <th>Employee</th>
+            <th>Type</th>
+            <th>Amount Added</th>
+            <th>By</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php
+        $has_add = false;
+        foreach (array_reverse($auditlog) as $entry) {
+          if (($entry['action'] ?? '') === 'Add Leave Balance') {
+            $has_add = true;
+            echo '<tr>';
+            echo '<td>' . htmlspecialchars($entry['timestamp']) . '</td>';
+            echo '<td>' . htmlspecialchars($entry['action']) . '</td>';
+            echo '<td>' . htmlspecialchars($entry['employee_name'] ?? '-') . '</td>';
+            echo '<td>' . htmlspecialchars($entry['leave_type'] ?? '-') . '</td>';
+            echo '<td>+ ' . htmlspecialchars($entry['amount_added'] ?? '-') . '</td>';
+            echo '<td>' . htmlspecialchars($entry['by'] ?? '-') . '</td>';
+            echo '</tr>';
+          }
+        }
+        if (!$has_add) {
+          echo '<tr><td colspan="6" style="text-align:center;color:#999;">No leave balance additions yet.</td></tr>';
         }
         ?>
         </tbody>

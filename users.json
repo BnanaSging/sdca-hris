@@ -4,14 +4,14 @@
         "name": "Matt Mayuga",
         "email": "matthew.mayuga@sdca.edu.ph",
         "password": "$2y$12$J8dUS\/XU0MP98iKC7oGweuKrgCv05tdx2uyl2EWAZJon\/vrWTnZAi",
-        "position": "Faculty Members (Professors \/ Instructors)",
-        "department": "IT",
+        "position": "Faculty Members",
+        "department": "BSIT",
         "leave_package": "newly_hired",
         "birthday": "2001-01-13",
         "created_at": "2026-03-22 10:10:34",
         "leaves_used": {
-            "Vacation": 3,
-            "Sick Leave": 3
+            "Vacation": 0,
+            "Sick Leave": 1
         }
     },
     {
@@ -19,11 +19,35 @@
         "name": "vincent estacio",
         "email": "vince.estacio@sdca.edu.ph",
         "password": "$2y$12$NuNNls2dTThQSnUFEiClNu4lTMekhX0amUquIeYvLQ468LuZ8L\/vi",
-        "position": "Program Chair \/ Department Head",
-        "department": "IT",
+        "position": "Program Chair",
+        "department": "BSIT",
         "leave_package": "newly_hired",
         "birthday": "2001-08-28",
         "gender": "male",
         "created_at": "2026-03-22 10:25:05"
+    },
+    {
+        "id": 3,
+        "name": "Alvin Jason Virata",
+        "email": "ajavirata@sdca.edu.ph",
+        "password": "$2y$12$n8AAnHeVCRINA8Eas30I3e3xWfN\/KVSvuXpm15O87TrYaPJ7z5WqK",
+        "position": "Dean",
+        "department": "BSIT",
+        "leave_package": "normal",
+        "birthday": "2000-02-22",
+        "gender": "male",
+        "created_at": "2026-03-22 12:51:49"
+    },
+    {
+        "id": 4,
+        "name": "Tonidel Miranda",
+        "email": "tonidel.miranda@sdca.edu.ph",
+        "password": "$2y$12$4cSVSZm9z52B9nMNpPN0i.DMH6OkkXCzJwxgHcBbhirTO2QNo2Bhe",
+        "position": "Faculty Members (Professors \/ Instructors)",
+        "department": "BSIT",
+        "leave_package": "newly_hired",
+        "birthday": "2003-05-22",
+        "gender": "male",
+        "created_at": "2026-03-22 13:21:19"
     }
 ]
