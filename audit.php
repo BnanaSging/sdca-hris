@@ -20,7 +20,7 @@
   <main class="main-content">
     <h1>Audit Trail</h1>
     <div class="card">
-      <p>Leave Approvals</p>
+      <p>Leave Actions (Applied, Approved, Denied)</p>
       <table style="width:100%;margin-top:20px;">
         <thead>
           <tr>
@@ -37,10 +37,11 @@
         <?php
         $auditlog_file = 'auditlog.json';
         $auditlog = file_exists($auditlog_file) ? json_decode(file_get_contents($auditlog_file), true) : [];
-        $has_approval = false;
+        $has_action = false;
         foreach (array_reverse($auditlog) as $entry) {
-          if (($entry['action'] ?? '') === 'Approve') {
-            $has_approval = true;
+          $action = strtolower($entry['action'] ?? '');
+          if (in_array($action, ['approve', 'approved', 'deny', 'denied', 'applied'])) {
+            $has_action = true;
             echo '<tr>';
             echo '<td>' . htmlspecialchars($entry['timestamp']) . '</td>';
             echo '<td>' . htmlspecialchars($entry['action']) . '</td>';
@@ -49,13 +50,15 @@
             $start = $entry['start_date'] ?? '';
             $end = $entry['end_date'] ?? '';
             echo '<td>' . htmlspecialchars($start) . ($start && $end ? ' to ' : '') . htmlspecialchars($end) . '</td>';
-            echo '<td>' . htmlspecialchars($entry['approved_by'] ?? '-') . '</td>';
-            echo '<td>' . htmlspecialchars($entry['new_status'] ?? '-') . '</td>';
+            $by = $entry['approved_by'] ?? $entry['applied_by'] ?? '-';
+            echo '<td>' . htmlspecialchars($by) . '</td>';
+            $status = $entry['new_status'] ?? $entry['status'] ?? '-';
+            echo '<td>' . htmlspecialchars($status) . '</td>';
             echo '</tr>';
           }
         }
-        if (!$has_approval) {
-          echo '<tr><td colspan="7" style="text-align:center;color:#999;">No leave approvals yet.</td></tr>';
+        if (!$has_action) {
+          echo '<tr><td colspan="7" style="text-align:center;color:#999;">No leave actions yet.</td></tr>';
         }
         ?>
         </tbody>

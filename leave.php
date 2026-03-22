@@ -21,6 +21,27 @@
     <?php
     // Handle approve/deny actions
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['leave_id'])) {
+          // Audit leave application (applied)
+          if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['apply_leave'])) {
+            $leaves = file_exists('leaves.json') ? json_decode(file_get_contents('leaves.json'), true) : [];
+            $auditlog_file = 'auditlog.json';
+            $auditlog = file_exists($auditlog_file) ? json_decode(file_get_contents($auditlog_file), true) : [];
+            $new_leave = end($leaves);
+            if ($new_leave) {
+              $auditlog[] = [
+                'timestamp' => date('Y-m-d H:i:s'),
+                'action' => 'Applied',
+                'leave_id' => $new_leave['id'],
+                'leave_type' => $new_leave['leave_type'],
+                'employee_name' => $new_leave['employee_name'],
+                'start_date' => $new_leave['start_date'],
+                'end_date' => $new_leave['end_date'],
+                'applied_by' => $_SESSION['name'],
+                'status' => $new_leave['status']
+              ];
+              file_put_contents($auditlog_file, json_encode($auditlog, JSON_PRETTY_PRINT));
+            }
+          }
       $leaves = file_exists('leaves.json') ? json_decode(file_get_contents('leaves.json'), true) : [];
       $users = file_exists('users.json') ? json_decode(file_get_contents('users.json'), true) : [];
       $auditlog_file = 'auditlog.json';
@@ -91,7 +112,7 @@
         $users = file_exists('users.json') ? json_decode(file_get_contents('users.json'), true) : [];
         $hierarchy = [
           'VPAA' => 1,
-          'Dean ' => 2,
+          'Dean' => 2,
           'Program Chair' => 3,
           'Faculty Members' => 4,
           'Administrative Staff' => 5
@@ -116,7 +137,8 @@
             }
           }
           if ($leave_user && isset($hierarchy[$leave_user['position']]) && $current_level !== null) {
-            if ($hierarchy[$leave_user['position']] === $approvable_level) {
+            // Only show direct subordinates (one level below)
+            if ($hierarchy[$leave_user['position']] === $current_level + 1) {
               $found = true;
               echo '<tr>';
               echo '<td>' . htmlspecialchars($leave['employee_name']) . '</td>';

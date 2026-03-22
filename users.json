@@ -24,7 +24,10 @@
         "leave_package": "newly_hired",
         "birthday": "2001-08-28",
         "gender": "male",
-        "created_at": "2026-03-22 10:25:05"
+        "created_at": "2026-03-22 10:25:05",
+        "leaves_used": {
+            "Vacation": 2
+        }
     },
     {
         "id": 3,
@@ -43,11 +46,23 @@
         "name": "Tonidel Miranda",
         "email": "tonidel.miranda@sdca.edu.ph",
         "password": "$2y$12$4cSVSZm9z52B9nMNpPN0i.DMH6OkkXCzJwxgHcBbhirTO2QNo2Bhe",
-        "position": "Faculty Members (Professors \/ Instructors)",
+        "position": "Faculty Members",
         "department": "BSIT",
         "leave_package": "newly_hired",
         "birthday": "2003-05-22",
         "gender": "male",
         "created_at": "2026-03-22 13:21:19"
+    },
+    {
+        "id": 5,
+        "name": "mica ella elisan",
+        "email": "micaella.elisan@sdca.edu.ph",
+        "password": "$2y$12$qMsGXiwvhIxTabM9IaCRLe1LfJlril9OigkFEMn1DebwJ4dmhfsk.",
+        "position": "VPAA",
+        "department": "BSIT",
+        "leave_package": "normal",
+        "birthday": "2004-06-25",
+        "gender": "female",
+        "created_at": "2026-03-22 14:10:15"
     }
 ]
