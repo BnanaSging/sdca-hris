@@ -31,5 +31,16 @@
         "reason": "ubo naman ngayon",
         "status": "Approved",
         "applied_date": "2026-03-22 11:27:19"
+    },
+    {
+        "id": 4,
+        "user_id": 1,
+        "employee_name": "Matt Mayuga",
+        "start_date": "2026-05-23",
+        "end_date": "2026-05-24",
+        "leave_type": "Vacation",
+        "reason": "wuahaha",
+        "status": "Pending",
+        "applied_date": "2026-03-22 14:01:43"
     }
 ]

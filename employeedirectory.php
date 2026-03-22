@@ -38,9 +38,9 @@ $users = getUsers();
         } else {
           $hierarchy = [
             'VPAA' => 1,
-            'Dean (Highest)' => 2,
-            'Program Chair / Department Head' => 3,
-            'Faculty Members (Professors / Instructors)' => 4,
+            'Dean' => 2,
+            'Program Chair' => 3,
+            'Faculty Members' => 4,
             'Administrative Staff' => 5
           ];
           // Sort users by hierarchy (lowest number = highest position)
@@ -91,9 +91,9 @@ $users = getUsers();
           <label for="modal_position">Position</label>
           <select id="modal_position" name="position" required>
             <option value="VPAA">VPAA</option>
-            <option value="Dean (Highest)">Dean </option>
-            <option value="Program Chair / Department Head">Program Chair</option>
-            <option value="Faculty Members (Professors / Instructors)">Faculty Members</option>
+            <option value="Dean">Dean </option>
+            <option value="Program Chair">Program Chair</option>
+            <option value="Faculty Members">Faculty Members</option>
             <option value="Administrative Staff">Administrative Staff</option>
           </select>
           <label for="modal_department">Department</label>
@@ -205,9 +205,9 @@ $users = getUsers();
         // PHP: expose hierarchy and current user info
         const hierarchy = <?php echo json_encode([
           'VPAA' => 1,
-          'Dean (Highest)' => 2,
-          'Program Chair / Department Head' => 3,
-          'Faculty Members (Professors / Instructors)' => 4,
+          'Dean' => 2,
+          'Program Chair' => 3,
+          'Faculty Members' => 4,
           'Administrative Staff' => 5
         ]); ?>;
         const currentUserId = <?php echo json_encode(isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null); ?>;

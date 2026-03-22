@@ -91,9 +91,9 @@
         $users = file_exists('users.json') ? json_decode(file_get_contents('users.json'), true) : [];
         $hierarchy = [
           'VPAA' => 1,
-          'Dean (Highest)' => 2,
-          'Program Chair / Department Head' => 3,
-          'Faculty Members (Professors / Instructors)' => 4,
+          'Dean ' => 2,
+          'Program Chair' => 3,
+          'Faculty Members' => 4,
           'Administrative Staff' => 5
         ];
         $current_user = null;
