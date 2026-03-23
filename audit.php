@@ -1,4 +1,12 @@
-<?php require 'auth-check.php'; require 'config.php'; ?>
+<?php
+require 'auth-check.php';
+require 'config.php';
+// Only allow admin to view this page
+if (!isset($_SESSION['position']) || strtolower($_SESSION['position']) !== 'admin') {
+  header('Location: index.php');
+  exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
