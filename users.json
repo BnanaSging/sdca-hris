@@ -15,10 +15,22 @@
         }
     },
     {
+        "id": 9999,
+        "name": "Admin",
+        "email": "admin",
+        "password": "$2y$10$w8Qw6Qw6Qw6Qw6Qw6Qw6QeQw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6Qw6",
+        "position": "admin",
+        "department": "Administration",
+        "leave_package": "custom",
+        "birthday": "1970-01-01",
+        "gender": "other",
+        "created_at": "2026-03-23 00:00:00"
+    },
+    {
         "id": 2,
         "name": "vincent estacio",
         "email": "vince.estacio@sdca.edu.ph",
-        "password": "$2y$12$NuNNls2dTThQSnUFEiClNu4lTMekhX0amUquIeYvLQ468LuZ8L\/vi",
+        "password": "$2y$12$MrR4LlSZ1CT4rgZGKamqiOajhdxf01fVtv1x.KxHlqj3hlygWzrRW",
         "position": "Program Chair",
         "department": "BSIT",
         "leave_package": "newly_hired",

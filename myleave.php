@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
       $can_delete = false;
       foreach ($leaves as $leave) {
         if ($leave['id'] == $leave_id && $leave['user_id'] == $_SESSION['user_id']) {
-          if (strtolower($leave['status']) === 'pending' || strtolower($leave['status']) === 'denied') {
+          if (strtolower($leave['status']) === 'pending') {
             $can_delete = true;
           }
           break;
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         file_put_contents($leave_file, json_encode(array_values($leaves), JSON_PRETTY_PRINT));
         $message = 'Leave application deleted successfully!';
       } else {
-        $error = 'You cannot delete an approved leave application.';
+        $error = 'You can only delete pending leave applications. Approved or denied applications cannot be deleted.';
       }
     }
 }
@@ -260,16 +260,7 @@ foreach ($leave_types as $type => $total) {
   </style>
 </head>
 <body class="page">
-  <nav class="sidebar">
-    <img src="image/logo-header.png" alt="HR Portal Logo" class="sidebar-logo">
-    <a href="index.php" class="nav-link">Home</a>
-    <a href="announcements.php" class="nav-link">Announcements</a>
-    <a href="employeedirectory.php" class="nav-link">Employee Directory</a>
-    <a href="leave.php" class="nav-link">Leave Request</a>
-    <a href="myleave.php" class="nav-link active">My Leave</a>
-    <a href="audit.php" class="nav-link">Audit Trail</a>
-    <a href="logout.php" class="nav-link logout">Logout</a>
-  </nav>
+  <?php include 'sidebar.php'; ?>
   <main class="main-content">
     <h1>My Leave Applications</h1>
     
@@ -396,7 +387,7 @@ foreach ($leave_types as $type => $total) {
                   <strong>Reason:</strong> <?php echo htmlspecialchars($leave['reason']); ?>
                 </div>
               </div>
-              <?php if (strtolower($leave['status']) !== 'approved'): ?>
+              <?php if (strtolower($leave['status']) === 'pending'): ?>
               <div style="margin-top: 12px;">
                 <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this leave application?');">
                   <input type="hidden" name="action" value="delete">

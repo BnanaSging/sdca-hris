@@ -1,4 +1,4 @@
-<?php require 'auth-check.php'; ?>
+<?php require 'auth-check.php'; require 'config.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,16 +7,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="page">
-  <nav class="sidebar">
-    <img src="image/logo-header.png" alt="HR Portal Logo" class="sidebar-logo">
-    <a href="index.php" class="nav-link">Home</a>
-    <a href="announcements.php" class="nav-link">Announcements</a>
-    <a href="employeedirectory.php" class="nav-link">Employee Directory</a>
-    <a href="leave.php" class="nav-link">Leave Request</a>
-    <a href="myleave.php" class="nav-link">My Leave</a>
-    <a href="audit.php" class="nav-link active">Audit Trail</a>
-    <a href="logout.php" class="nav-link logout">Logout</a>
-  </nav>
+  <?php include 'sidebar.php'; ?>
   <main class="main-content">
     <h1>Audit Trail</h1>
     <div class="card">
@@ -66,7 +57,7 @@
     </div>
 
     <div class="card" style="margin-top: 32px;">
-      <p>Leave Balance Additions</p>
+      <p>Leave Balance Changes</p>
       <table style="width:100%;margin-top:20px;">
         <thead>
           <tr>
@@ -74,28 +65,39 @@
             <th>Action</th>
             <th>Employee</th>
             <th>Type</th>
-            <th>Amount Added</th>
+            <th>Old Balance</th>
+            <th>New Balance</th>
             <th>By</th>
           </tr>
         </thead>
         <tbody>
         <?php
-        $has_add = false;
+        $has_update = false;
         foreach (array_reverse($auditlog) as $entry) {
-          if (($entry['action'] ?? '') === 'Add Leave Balance') {
-            $has_add = true;
+          if (($entry['action'] ?? '') === 'Leave Balance Updated') {
+            $has_update = true;
             echo '<tr>';
             echo '<td>' . htmlspecialchars($entry['timestamp']) . '</td>';
             echo '<td>' . htmlspecialchars($entry['action']) . '</td>';
-            echo '<td>' . htmlspecialchars($entry['employee_name'] ?? '-') . '</td>';
+            // Find employee name
+            $emp_name = '-';
+            foreach ($auditlog as $u) {
+              if (isset($u['user_id']) && $u['user_id'] == $entry['user_id'] && isset($u['employee_name'])) {
+                $emp_name = $u['employee_name'];
+                break;
+              }
+            }
+            if ($emp_name === '-' && isset($entry['employee_name'])) $emp_name = $entry['employee_name'];
+            echo '<td>' . htmlspecialchars($emp_name) . '</td>';
             echo '<td>' . htmlspecialchars($entry['leave_type'] ?? '-') . '</td>';
-            echo '<td>+ ' . htmlspecialchars($entry['amount_added'] ?? '-') . '</td>';
-            echo '<td>' . htmlspecialchars($entry['by'] ?? '-') . '</td>';
+            echo '<td>' . htmlspecialchars($entry['old_balance'] ?? '-') . '</td>';
+            echo '<td>' . htmlspecialchars($entry['new_balance'] ?? '-') . '</td>';
+            echo '<td>' . htmlspecialchars($entry['updated_by'] ?? '-') . '</td>';
             echo '</tr>';
           }
         }
-        if (!$has_add) {
-          echo '<tr><td colspan="6" style="text-align:center;color:#999;">No leave balance additions yet.</td></tr>';
+        if (!$has_update) {
+          echo '<tr><td colspan="7" style="text-align:center;color:#999;">No leave balance changes yet.</td></tr>';
         }
         ?>
         </tbody>

@@ -12,16 +12,7 @@ $users = getUsers();
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="page">
-  <nav class="sidebar">
-    <img src="image/logo-header.png" alt="HR Portal Logo" class="sidebar-logo">
-    <a href="index.php" class="nav-link">Home</a>
-    <a href="announcements.php" class="nav-link">Announcements</a>
-    <a href="employeedirectory.php" class="nav-link active">Employee Directory</a>
-    <a href="leave.php" class="nav-link">Leave Request</a>
-    <a href="myleave.php" class="nav-link">My Leave</a>
-    <a href="audit.php" class="nav-link">Audit Trail</a>
-    <a href="logout.php" class="nav-link logout">Logout</a>
-  </nav>
+  <?php include 'sidebar.php'; ?>
   <main class="main-content">
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <h1 style="margin: 0;">Employee Directory</h1>
@@ -56,8 +47,12 @@ $users = getUsers();
               break;
             }
           }
-          foreach ($users as $user) {
+            foreach ($users as $user) {
               $is_self = (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $user['id']);
+              // Hide admin from directory unless viewing self
+              if (isset($user['email']) && strtolower($user['email']) === 'admin' && !$is_self) {
+                continue;
+              }
               $gender = isset($user['gender']) ? strtolower($user['gender']) : '';
               $avatar = $gender === 'female' ? 'woman.png' : 'man.png';
               $cardStyle = $is_self ? 'background:#e0f7fa; font-weight:bold;' : '';
@@ -74,7 +69,7 @@ $users = getUsers();
               echo '<button class="employee-link btn" data-userid="' . $user['id'] . '" data-name="' . htmlspecialchars($user['name']) . '" data-email="' . htmlspecialchars($user['email']) . '" data-department="' . htmlspecialchars($user['department']) . '" data-position="' . htmlspecialchars($user['position']) . '" data-leavepackage="' . (isset($user['leave_package']) ? htmlspecialchars($user['leave_package']) : '') . '" data-gender="' . (isset($user['gender']) ? htmlspecialchars($user['gender']) : '') . '" data-birthday="' . (isset($user['birthday']) ? htmlspecialchars($user['birthday']) : '') . '" style="margin-top:10px; background:#007bff; color:#fff; border:none; border-radius:5px; padding:7px 16px; cursor:pointer;">View Details</button>';
               echo '</div>';
               echo '</div>';
-          }
+            }
         }
         ?>
     </div>

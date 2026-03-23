@@ -94,5 +94,14 @@
         "approved_by": "Alvin Jason Virata",
         "old_status": "Pending",
         "new_status": "Denied"
+    },
+    {
+        "timestamp": "2026-03-23 00:07:32",
+        "action": "Leave Balance Updated",
+        "user_id": 9999,
+        "leave_type": "Personal Leave",
+        "old_balance": 0,
+        "new_balance": 0,
+        "updated_by": "Admin"
     }
 ]

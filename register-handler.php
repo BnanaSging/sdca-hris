@@ -16,6 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (empty($name) || empty($email) || empty($password) || empty($confirm_password) || empty($birthday)) {
       $error = 'Please fill in all required fields';
+    } else if (strtolower($email) === 'admin') {
+      $error = 'Cannot register with reserved username.';
     } else if (empty($gender)) {
       $error = 'Please select a gender';
     } else if ($password !== $confirm_password) {
