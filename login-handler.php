@@ -93,8 +93,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
       <?php endif; ?>
       <form class="login-form" action="login-handler.php" method="post">
-        <label for="email">Email</label>
-        <input id="email" name="email" type="email" placeholder="name@example.com or admin" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" required />
+        <label for="email">Email or Username</label>
+        <input id="email" name="email" type="text" placeholder="name@example.com or admin" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" required />
         <label for="password">Password</label>
         <input id="password" name="password" type="password" placeholder="••••••••" required />
         <button type="submit">Log In</button>
