@@ -197,26 +197,22 @@ if ($current_user && isset($current_user['leave_package'])) {
 
 $remaining_leaves = [];
 foreach ($leave_types as $type => $total) {
-    // Use leaves_used from users.json if available (for accurate deduction)
-    $used = 0;
-    $extra = 0;
+    // If available leave is set in users.json, use it directly
     if ($current_user && isset($current_user['leaves_used'][$type])) {
-      $used = $current_user['leaves_used'][$type];
-      if ($used < 0) {
-        $extra = abs($used);
-        $used = 0;
-      }
+        $remaining_leaves[$type] = $current_user['leaves_used'][$type];
     } else {
-      foreach ($user_leaves as $leave) {
-        if ($leave['leave_type'] === $type && $leave['status'] === 'Approved') {
-          $start = new DateTime($leave['start_date']);
-          $end = new DateTime($leave['end_date']);
-          $interval = $start->diff($end);
-          $used += $interval->days + 1; // +1 to include the end date
+        // Fallback: calculate remaining as before
+        $used = 0;
+        foreach ($user_leaves as $leave) {
+            if ($leave['leave_type'] === $type && $leave['status'] === 'Approved') {
+                $start = new DateTime($leave['start_date']);
+                $end = new DateTime($leave['end_date']);
+                $interval = $start->diff($end);
+                $used += $interval->days + 1; // +1 to include the end date
+            }
         }
-      }
+        $remaining_leaves[$type] = $total - $used;
     }
-    $remaining_leaves[$type] = ($total + $extra) - $used;
 }
 ?>
 <!DOCTYPE html>
@@ -330,22 +326,23 @@ foreach ($leave_types as $type => $total) {
       
       <div class="leave-card">
         <h2>My Leave Balances</h2>
-        <?php foreach ($leave_types as $type => $total): 
-          $remaining = $remaining_leaves[$type];
-          $used = 0;
-          if ($current_user && isset($current_user['leaves_used'][$type])) {
-            $used = $current_user['leaves_used'][$type];
-          } else {
-            foreach ($user_leaves as $leave) {
-              if ($leave['leave_type'] === $type && $leave['status'] === 'Approved') {
-                $start = new DateTime($leave['start_date']);
-                $end = new DateTime($leave['end_date']);
-                $interval = $start->diff($end);
-                $used += $interval->days + 1;
-              }
+        <?php
+        // Merge default and admin-added leave types
+        $all_leave_types = $leave_types;
+        if ($current_user && isset($current_user['leaves_used'])) {
+          foreach ($current_user['leaves_used'] as $type => $val) {
+            if (!isset($all_leave_types[$type])) {
+              $all_leave_types[$type] = 0;
             }
           }
-          if ($used < 0) $used = 0;
+        }
+        foreach ($all_leave_types as $type => $total):
+          // Always use the value from leaves_used if present
+          if ($current_user && isset($current_user['leaves_used'][$type])) {
+            $remaining = $current_user['leaves_used'][$type];
+          } else {
+            $remaining = isset($remaining_leaves[$type]) ? $remaining_leaves[$type] : 0;
+          }
           $class = '';
           if ($remaining <= 0) {
             $class = 'critical';
@@ -356,7 +353,6 @@ foreach ($leave_types as $type => $total) {
           <div class="leave-type-row">
             <span class="leave-type-name"><?php echo htmlspecialchars($type); ?></span>
             <span class="leave-count <?php echo $class; ?>"><?php echo $remaining; ?> days left</span>
-            <span style="font-size:0.95em; color:#888; margin-left:10px;">(used: <?php echo $used; ?>)</span>
           </div>
         <?php endforeach; ?>
       </div>

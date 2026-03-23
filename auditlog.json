@@ -103,5 +103,149 @@
         "old_balance": 0,
         "new_balance": 0,
         "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-03-23 00:39:54",
+        "action": "Leave Balance Updated",
+        "user_id": 2,
+        "leave_type": "Vacation",
+        "old_balance": 2,
+        "new_balance": 6,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-03-23 00:40:11",
+        "action": "Leave Balance Updated",
+        "user_id": 2,
+        "leave_type": "Vacation",
+        "old_balance": 6,
+        "new_balance": 0,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-03-23 00:40:18",
+        "action": "Leave Balance Updated",
+        "user_id": 2,
+        "leave_type": "Vacation",
+        "old_balance": 0,
+        "new_balance": 1,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-03-23 00:40:23",
+        "action": "Leave Balance Updated",
+        "user_id": 2,
+        "leave_type": "Vacation",
+        "old_balance": 1,
+        "new_balance": 0,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-03-23 00:43:23",
+        "action": "Leave Balance Updated",
+        "user_id": 2,
+        "leave_type": "Vacation",
+        "old_balance": 0,
+        "new_balance": 1,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-03-23 00:43:33",
+        "action": "Leave Balance Updated",
+        "user_id": 2,
+        "leave_type": "Vacation",
+        "old_balance": 14,
+        "new_balance": 2,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-03-23 00:43:38",
+        "action": "Leave Balance Updated",
+        "user_id": 2,
+        "leave_type": "Vacation",
+        "old_balance": 13,
+        "new_balance": 1,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-03-23 00:43:41",
+        "action": "Leave Balance Updated",
+        "user_id": 2,
+        "leave_type": "Vacation",
+        "old_balance": 14,
+        "new_balance": 0,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-03-23 00:46:40",
+        "action": "Leave Balance Updated",
+        "user_id": 2,
+        "leave_type": "Vacation",
+        "old_balance": 15,
+        "new_balance": 10,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-03-23 00:46:46",
+        "action": "Leave Balance Updated",
+        "user_id": 2,
+        "leave_type": "Vacation",
+        "old_balance": 10,
+        "new_balance": 11,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-03-23 00:52:06",
+        "action": "Leave Balance Updated",
+        "user_id": 2,
+        "leave_type": "Personal Leave",
+        "old_balance": 0,
+        "new_balance": 2,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-03-23 00:52:11",
+        "action": "Leave Balance Updated",
+        "user_id": 2,
+        "leave_type": "Personal Leave",
+        "old_balance": 2,
+        "new_balance": 0,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-03-23 00:52:16",
+        "action": "Leave Balance Updated",
+        "user_id": 2,
+        "leave_type": "Vacation",
+        "old_balance": 11,
+        "new_balance": 8,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-03-23 01:03:29",
+        "action": "Leave Balance Updated",
+        "user_id": 2,
+        "leave_type": "Paternity Leave",
+        "old_balance": 0,
+        "new_balance": 7,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-03-23 01:06:21",
+        "action": "Leave Balance Updated",
+        "user_id": 2,
+        "leave_type": "Birthday Leave",
+        "old_balance": 0,
+        "new_balance": 2,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-03-23 01:06:24",
+        "action": "Leave Balance Updated",
+        "user_id": 2,
+        "leave_type": "Birthday Leave",
+        "old_balance": 2,
+        "new_balance": 1,
+        "updated_by": "Admin"
     }
 ]

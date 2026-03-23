@@ -31,10 +31,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id'], $_POST['le
   $new_balance = intval($_POST['new_balance']);
   $users = json_decode(file_get_contents($users_file), true);
   $found = false;
+  // Define total allowed per leave type (should match myleave.php logic)
+  $default_totals = [
+    'Vacation' => 15,
+    'Sick Leave' => 15,
+    'Birthday Leave' => 1,
+    'Personal Leave' => 15,
+    'Maternity Leave' => 60,
+    'Paternity Leave' => 7,
+    'Other' => 0
+  ];
   foreach ($users as &$user) {
     if ($user['id'] == $user_id) {
       if (!isset($user['leaves_used'])) $user['leaves_used'] = [];
       $old_balance = isset($user['leaves_used'][$leave_type]) ? $user['leaves_used'][$leave_type] : 0;
+      // Store available leave directly
       $user['leaves_used'][$leave_type] = $new_balance;
       $found = true;
       // Audit log
@@ -84,40 +95,52 @@ $leave_types = ['Vacation', 'Sick Leave', 'Birthday Leave', 'Personal Leave', 'M
 <body class="page">
   <?php include 'sidebar.php'; ?>
   <main class="main-content">
-    <h1>Manage Leave Balances</h1>
-    <?php if ($message): ?>
-      <div class="message"><?php echo htmlspecialchars($message); ?></div>
-    <?php endif; ?>
-    <?php if ($error): ?>
-      <div class="error-msg"><?php echo htmlspecialchars($error); ?></div>
-    <?php endif; ?>
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th>Employee</th>
-          <?php foreach ($leave_types as $type): ?>
-            <th><?php echo htmlspecialchars($type); ?></th>
-          <?php endforeach; ?>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach ($users as $user): ?>
+      <h1>Manage Leave Balances</h1>
+      <?php if ($message): ?>
+        <div class="message"><?php echo htmlspecialchars($message); ?></div>
+      <?php endif; ?>
+      <?php if ($error): ?>
+        <div class="error-msg"><?php echo htmlspecialchars($error); ?></div>
+      <?php endif; ?>
+      <div style="margin-bottom: 18px;">
+        <input type="text" id="searchInput" placeholder="Search employee by name..." style="padding:8px; width:260px; border-radius:6px; border:1px solid #ccc; font-size:1em;">
+      </div>
+      <table class="admin-table" id="leaveBalancesTable">
+        <thead>
           <tr>
-            <td><?php echo htmlspecialchars($user['name']); ?></td>
+            <th>Employee</th>
             <?php foreach ($leave_types as $type): ?>
-              <td>
-                <form method="POST" class="admin-form">
-                  <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                  <input type="hidden" name="leave_type" value="<?php echo htmlspecialchars($type); ?>">
-                  <input type="number" name="new_balance" value="<?php echo isset($user['leaves_used'][$type]) ? $user['leaves_used'][$type] : 0; ?>" min="0" required>
-                  <button type="submit" class="btn" style="padding:4px 10px; font-size:0.9em;">Save</button>
-                </form>
-              </td>
+              <th><?php echo htmlspecialchars($type); ?></th>
             <?php endforeach; ?>
           </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <?php foreach ($users as $user): ?>
+            <tr class="employee-row">
+              <td><?php echo htmlspecialchars($user['name']); ?></td>
+              <?php foreach ($leave_types as $type): ?>
+                <td>
+                  <form method="POST" class="admin-form">
+                    <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                    <input type="hidden" name="leave_type" value="<?php echo htmlspecialchars($type); ?>">
+                    <input type="number" name="new_balance" value="<?php echo isset($user['leaves_used'][$type]) ? $user['leaves_used'][$type] : 0; ?>" min="0" required>
+                    <button type="submit" class="btn" style="padding:4px 10px; font-size:0.9em;">Save</button>
+                  </form>
+                </td>
+              <?php endforeach; ?>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+      <script>
+        document.getElementById('searchInput').addEventListener('input', function() {
+          const filter = this.value.toLowerCase();
+          document.querySelectorAll('.employee-row').forEach(function(row) {
+            const name = row.querySelector('td').textContent.toLowerCase();
+            row.style.display = name.includes(filter) ? '' : 'none';
+          });
+        });
+      </script>
   </main>
 </body>
 </html>
