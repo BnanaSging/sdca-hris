@@ -115,8 +115,8 @@
             break;
           }
         }
+        $is_admin = isset($current_user['position']) && strtolower($current_user['position']) === 'admin';
         $current_level = $current_user && isset($hierarchy[$current_user['position']]) ? $hierarchy[$current_user['position']] : null;
-        $approvable_level = $current_level !== null ? $current_level + 1 : null;
         $found = false;
         foreach ($leaves as $leave) {
           // Find the leave owner's position
@@ -127,7 +127,33 @@
               break;
             }
           }
-          if ($leave_user && isset($hierarchy[$leave_user['position']]) && $current_level !== null) {
+          if ($is_admin) {
+            // Admin sees all leave applications
+            $found = true;
+            echo '<tr>';
+            echo '<td>' . htmlspecialchars($leave['employee_name']) . '</td>';
+            echo '<td>' . htmlspecialchars($leave['leave_type']) . '</td>';
+            echo '<td>' . htmlspecialchars($leave['status']) . '</td>';
+            echo '<td>' . htmlspecialchars($leave['start_date']) . '</td>';
+            echo '<td>' . htmlspecialchars($leave['end_date']) . '</td>';
+            echo '<td>' . htmlspecialchars($leave['reason']) . '</td>';
+            // Approve/Deny buttons only if status is Pending
+            if (strtolower($leave['status']) === 'pending') {
+              echo '<td>';
+              echo '<form method="post" style="display:inline; margin:0;">';
+              echo '<input type="hidden" name="leave_id" value="' . htmlspecialchars($leave['id']) . '">';
+              echo '<button type="submit" name="action" value="approve" style="background:#28a745;color:#fff;border:none;padding:4px 10px;border-radius:3px;cursor:pointer;">Approve</button>';
+              echo '</form> ';
+              echo '<form method="post" style="display:inline; margin:0;">';
+              echo '<input type="hidden" name="leave_id" value="' . htmlspecialchars($leave['id']) . '">';
+              echo '<button type="submit" name="action" value="deny" style="background:#dc3545;color:#fff;border:none;padding:4px 10px;border-radius:3px;cursor:pointer;">Deny</button>';
+              echo '</form>';
+              echo '</td>';
+            } else {
+              echo '<td></td>';
+            }
+            echo '</tr>';
+          } else if ($leave_user && isset($hierarchy[$leave_user['position']]) && $current_level !== null) {
             // Only show direct subordinates (one level below)
             if ($hierarchy[$leave_user['position']] === $current_level + 1) {
               $found = true;

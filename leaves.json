@@ -64,5 +64,38 @@
         "reason": "nilagnat ",
         "status": "Denied",
         "applied_date": "2026-03-22 14:23:48"
+    },
+    {
+        "id": 7,
+        "user_id": 2,
+        "employee_name": "vincent estacio",
+        "start_date": "2026-03-21",
+        "end_date": "2026-03-22",
+        "leave_type": "Sick Leave",
+        "reason": "sakit ",
+        "status": "Pending",
+        "applied_date": "2026-03-23 02:00:58"
+    },
+    {
+        "id": 8,
+        "user_id": 5,
+        "employee_name": "mica ella elisan",
+        "start_date": "2026-02-01",
+        "end_date": "2026-02-14",
+        "leave_type": "Personal Leave",
+        "reason": "personal",
+        "status": "Pending",
+        "applied_date": "2026-03-23 02:07:44"
+    },
+    {
+        "id": 9,
+        "user_id": 3,
+        "employee_name": "Alvin Jason Virata",
+        "start_date": "2026-04-13",
+        "end_date": "2026-04-17",
+        "leave_type": "Vacation",
+        "reason": "vacation",
+        "status": "Pending",
+        "applied_date": "2026-03-23 02:24:04"
     }
 ]
