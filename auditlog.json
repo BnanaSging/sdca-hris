@@ -247,5 +247,17 @@
         "old_balance": 2,
         "new_balance": 1,
         "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-04-04 22:10:25",
+        "action": "Approve",
+        "leave_id": 10,
+        "leave_type": "Sick Leave",
+        "employee_name": "vincent estacio",
+        "start_date": "2026-04-09",
+        "end_date": "2026-04-11",
+        "approved_by": "Alvin Jason Virata",
+        "old_status": "Pending",
+        "new_status": "Approved"
     }
 ]

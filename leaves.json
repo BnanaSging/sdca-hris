@@ -97,5 +97,16 @@
         "reason": "vacation",
         "status": "Pending",
         "applied_date": "2026-03-23 02:24:04"
+    },
+    {
+        "id": 10,
+        "user_id": 2,
+        "employee_name": "vincent estacio",
+        "start_date": "2026-04-09",
+        "end_date": "2026-04-11",
+        "leave_type": "Sick Leave",
+        "reason": "hika ",
+        "status": "Approved",
+        "applied_date": "2026-04-04 22:10:11"
     }
 ]

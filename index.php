@@ -10,9 +10,9 @@
   <?php include 'sidebar.php'; ?>
   <main class="main-content">
     <h1>Home</h1>
-    <p>Welcome to the HR Portal. Use the sidebar to navigate.</p>
+    <p>Welcome to the SDCA HRIS. Use the sidebar to navigate.</p>
     <div class="card user-card">
-      <p class="date-small">March 18, 2026</p>
+    <p class="date-small"><?php echo date('F j, Y'); ?></p>
       <h3>Welcome, <?php echo isset($_SESSION['name']) ? htmlspecialchars($_SESSION['name']) : 'Guest'; ?></h3>
       <p><strong>Position:</strong> <?php echo isset($_SESSION['position']) ? htmlspecialchars($_SESSION['position']) : 'N/A'; ?></p>
       <p><strong>Department:</strong> <?php echo isset($_SESSION['department']) ? htmlspecialchars($_SESSION['department']) : 'N/A'; ?></p>

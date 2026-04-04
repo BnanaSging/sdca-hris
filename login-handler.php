@@ -83,8 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
   <div class="login-page">
+    <img src="image/logo-main.png" alt="Company Logo" style="display: block; width: 350px; height: 350px; margin: 0 auto 0; padding: 0; border: 0;" />
     <div class="login-card">
-      <div class="brand">HR PORTAL</div>
+      <div class="brand"></div>
       <h1>Sign in</h1>
       <p>Enter your credentials to continue.</p>
       <?php if ($error): ?>
@@ -99,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input id="password" name="password" type="password" placeholder="••••••••" required />
         <button type="submit">Log In</button>
       </form>
-      <div class="login-footer">Need an account? <a href="register-handler.php">Create one</a></div>
+
     </div>
   </div>
 </body>

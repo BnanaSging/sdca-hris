@@ -41,7 +41,8 @@
             "Vacation": 8,
             "Personal Leave": 0,
             "Paternity Leave": 7,
-            "Birthday Leave": 1
+            "Birthday Leave": 1,
+            "Sick Leave": 3
         }
     },
     {
