@@ -12,8 +12,26 @@
     <h1>Home</h1>
     <p>Welcome to the SDCA HRIS. Use the sidebar to navigate.</p>
     <div class="card user-card">
-    <p class="date-small"><?php echo date('F j, Y'); ?></p>
-      <h3>Welcome, <?php echo isset($_SESSION['name']) ? htmlspecialchars($_SESSION['name']) : 'Guest'; ?></h3>
+      <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 15px;">
+        <div class="user-avatar">
+          <?php
+            $name = isset($_SESSION['name']) ? htmlspecialchars($_SESSION['name']) : 'Guest';
+            $initials = '';
+            $parts = explode(' ', $name);
+            foreach ($parts as $part) {
+              $initials .= strtoupper(substr($part, 0, 1));
+            }
+            if (strlen($initials) > 2) {
+              $initials = substr($initials, 0, 2);
+            }
+            echo $initials;
+          ?>
+        </div>
+        <div>
+          <p class="date-small"><?php echo date('F j, Y'); ?></p>
+          <h3 style="margin: 5px 0;">Welcome, <?php echo isset($_SESSION['name']) ? htmlspecialchars($_SESSION['name']) : 'Guest'; ?></h3>
+        </div>
+      </div>
       <p><strong>Position:</strong> <?php echo isset($_SESSION['position']) ? htmlspecialchars($_SESSION['position']) : 'N/A'; ?></p>
       <p><strong>Department:</strong> <?php echo isset($_SESSION['department']) ? htmlspecialchars($_SESSION['department']) : 'N/A'; ?></p>
     </div>

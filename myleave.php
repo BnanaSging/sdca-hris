@@ -394,10 +394,12 @@ foreach ($leave_types as $type => $total) {
           } else {
             $remaining = isset($remaining_leaves[$type]) ? $remaining_leaves[$type] : 0;
           }
-          $class = '';
+          // Skip if balance is 0 or negative
           if ($remaining <= 0) {
-            $class = 'critical';
-          } elseif ($remaining <= 3) {
+            continue;
+          }
+          $class = '';
+          if ($remaining <= 3) {
             $class = 'low';
           }
         ?>

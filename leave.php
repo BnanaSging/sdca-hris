@@ -165,8 +165,9 @@ require 'config.php';
             }
             echo '</tr>';
           } else if ($leave_user && isset($hierarchy[$leave_user['position']]) && $current_level !== null) {
-            // Only show direct subordinates (one level below)
-            if ($hierarchy[$leave_user['position']] === $current_level + 1) {
+            // Only show direct subordinates (one level below) in the same department
+            $same_department = isset($current_user['department']) && isset($leave_user['department']) && $current_user['department'] === $leave_user['department'];
+            if ($hierarchy[$leave_user['position']] === $current_level + 1 && $same_department) {
               $found = true;
               echo '<tr>';
               echo '<td>' . htmlspecialchars($leave['employee_name']) . '</td>';
