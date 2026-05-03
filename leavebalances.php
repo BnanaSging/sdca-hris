@@ -73,6 +73,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id'], $_POST['le
 
 $users = json_decode(file_get_contents($users_file), true);
 $leave_types = ['Vacation', 'Sick Leave', 'Birthday Leave', 'Personal Leave', 'Maternity Leave', 'Paternity Leave', 'Other'];
+
+// Helper function to get total leaves for a user's package
+function getTotalLeavesForPackage($package, $leave_type) {
+  $totals = [
+    'normal' => [
+      'Vacation' => 15,
+      'Sick Leave' => 15,
+      'Birthday Leave' => 1,
+      'Personal Leave' => 15,
+      'Maternity Leave' => 0,
+      'Paternity Leave' => 0,
+      'Other' => 0
+    ],
+    'newly_hired' => [
+      'Vacation' => 3,
+      'Sick Leave' => 3,
+      'Birthday Leave' => 1,
+      'Personal Leave' => 0,
+      'Maternity Leave' => 0,
+      'Paternity Leave' => 0,
+      'Other' => 0
+    ],
+    'custom' => [
+      'Vacation' => PHP_INT_MAX,
+      'Sick Leave' => PHP_INT_MAX,
+      'Birthday Leave' => PHP_INT_MAX,
+      'Personal Leave' => PHP_INT_MAX,
+      'Maternity Leave' => PHP_INT_MAX,
+      'Paternity Leave' => PHP_INT_MAX,
+      'Other' => PHP_INT_MAX
+    ]
+  ];
+  
+  $pkg = isset($totals[$package]) ? $package : 'normal';
+  return isset($totals[$pkg][$leave_type]) ? $totals[$pkg][$leave_type] : 0;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -81,66 +117,183 @@ $leave_types = ['Vacation', 'Sick Leave', 'Birthday Leave', 'Personal Leave', 'M
   <title>HR Portal - Leave Balances</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    .admin-table th, .admin-table td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-    .admin-table th { background: #2563eb; color: white; }
-    .admin-table tr:nth-child(even) { background: #f9fafb; }
-    .admin-table tr:hover { background: #e0e7ff; }
-    .admin-form { display: flex; gap: 10px; justify-content: center; align-items: center; }
-    .admin-form input[type='number'] { width: 70px; }
+    .balance-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .balance-table thead { background: #2563eb; color: white; }
+    .balance-table th { padding: 12px; text-align: left; }
+    .balance-table td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
+    .balance-table tbody tr:hover { background: #f3f4f6; }
     .message { background: #dcfce7; color: #166534; padding: 12px; border-radius: 5px; margin-bottom: 15px; }
     .error-msg { background: #fee; color: #c33; padding: 12px; border-radius: 5px; margin-bottom: 15px; }
+    .search-box { padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; width: 300px; margin-bottom: 20px; }
+    .edit-btn { background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
+    .edit-btn:hover { background: #1d4ed8; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+    .modal.active { display: flex; justify-content: center; align-items: center; }
+    .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; }
+    .modal-header { font-size: 1.3em; font-weight: 600; margin-bottom: 20px; }
+    .modal-field { margin-bottom: 15px; }
+    .modal-field label { display: block; font-weight: 600; margin-bottom: 5px; }
+    .modal-field input { width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; }
+    .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+    .modal-btn-save { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; flex: 1; }
+    .modal-btn-save:hover { background: #218838; }
+    .modal-btn-close { background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; flex: 1; }
+    .modal-btn-close:hover { background: #5a6268; }
   </style>
 </head>
 <body class="page">
   <?php include 'sidebar.php'; ?>
   <main class="main-content">
-      <h1>Manage Leave Balances</h1>
-      <?php if ($message): ?>
-        <div class="message"><?php echo htmlspecialchars($message); ?></div>
-      <?php endif; ?>
-      <?php if ($error): ?>
-        <div class="error-msg"><?php echo htmlspecialchars($error); ?></div>
-      <?php endif; ?>
-      <div style="margin-bottom: 18px;">
-        <input type="text" id="searchInput" placeholder="Search employee by name..." style="padding:8px; width:260px; border-radius:6px; border:1px solid #ccc; font-size:1em;">
-      </div>
-      <table class="admin-table" id="leaveBalancesTable">
-        <thead>
-          <tr>
-            <th>Employee</th>
-            <?php foreach ($leave_types as $type): ?>
-              <th><?php echo htmlspecialchars($type); ?></th>
+    <h1>Leave Balances</h1>
+    
+    <?php if ($message): ?>
+      <div class="message"><?php echo htmlspecialchars($message); ?></div>
+    <?php endif; ?>
+    
+    <?php if ($error): ?>
+      <div class="error-msg"><?php echo htmlspecialchars($error); ?></div>
+    <?php endif; ?>
+    
+    <input type="text" class="search-box" id="searchInput" placeholder="Search employee..." />
+    
+    <table class="balance-table">
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Vacation</th>
+          <th>Sick Leave</th>
+          <th>Personal Leave</th>
+          <th>Birthday</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($users as $user): ?>
+          <tr class="employee-row">
+            <td><?php echo htmlspecialchars($user['name']); ?></td>
+            <?php
+              $package = isset($user['leave_package']) ? $user['leave_package'] : 'normal';
+              foreach (['Vacation', 'Sick Leave', 'Personal Leave', 'Birthday Leave'] as $type):
+                $total = getTotalLeavesForPackage($package, $type);
+                $used = isset($user['leaves_used'][$type]) ? $user['leaves_used'][$type] : 0;
+                $remaining = ($total === PHP_INT_MAX) ? '∞' : ($total - $used);
+            ?>
+              <td><?php echo htmlspecialchars($remaining); ?> left</td>
             <?php endforeach; ?>
+            <td>
+              <button class="edit-btn" onclick="openEditModal(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['name']); ?>')">Edit</button>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($users as $user): ?>
-            <tr class="employee-row">
-              <td><?php echo htmlspecialchars($user['name']); ?></td>
-              <?php foreach ($leave_types as $type): ?>
-                <td>
-                  <form method="POST" class="admin-form">
-                    <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                    <input type="hidden" name="leave_type" value="<?php echo htmlspecialchars($type); ?>">
-                    <input type="number" name="new_balance" value="<?php echo isset($user['leaves_used'][$type]) ? $user['leaves_used'][$type] : 0; ?>" min="0" required>
-                    <button type="submit" class="btn" style="padding:4px 10px; font-size:0.9em;">Save</button>
-                  </form>
-                </td>
-              <?php endforeach; ?>
-            </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
-      <script>
-        document.getElementById('searchInput').addEventListener('input', function() {
-          const filter = this.value.toLowerCase();
-          document.querySelectorAll('.employee-row').forEach(function(row) {
-            const name = row.querySelector('td').textContent.toLowerCase();
-            row.style.display = name.includes(filter) ? '' : 'none';
-          });
-        });
-      </script>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
   </main>
+
+  <!-- Edit Modal -->
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <div class="modal-header" id="modalTitle"></div>
+      <form method="POST" id="editForm">
+        <div class="modal-field">
+          <label for="modalLeaveType">Leave Type</label>
+          <select id="modalLeaveType" name="leave_type" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px;">
+            <option value="Vacation">Vacation</option>
+            <option value="Sick Leave">Sick Leave</option>
+            <option value="Personal Leave">Personal Leave</option>
+            <option value="Birthday Leave">Birthday Leave</option>
+            <option value="Maternity Leave">Maternity Leave</option>
+            <option value="Paternity Leave">Paternity Leave</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="modal-field">
+          <label for="modalUsedDays">Days Used</label>
+          <input type="number" id="modalUsedDays" name="new_balance" min="0" required />
+        </div>
+        <div class="modal-field" id="remainingDisplay" style="padding: 8px; background: #f0f9ff; border-radius: 4px; font-weight: 600; color: #2563eb;"></div>
+        <input type="hidden" id="modalUserId" name="user_id" />
+        <div class="modal-buttons">
+          <button type="submit" class="modal-btn-save">Save</button>
+          <button type="button" class="modal-btn-close" onclick="closeEditModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const usersData = <?php echo json_encode(array_map(function($u) {
+      return [
+        'id' => $u['id'],
+        'name' => $u['name'],
+        'leaves_used' => isset($u['leaves_used']) ? $u['leaves_used'] : [],
+        'leave_package' => isset($u['leave_package']) ? $u['leave_package'] : 'normal'
+      ];
+    }, $users)); ?>;
+
+    const packageTotals = {
+      'normal': { 'Vacation': 15, 'Sick Leave': 15, 'Personal Leave': 15, 'Birthday Leave': 1, 'Maternity Leave': 0, 'Paternity Leave': 0, 'Other': 0 },
+      'newly_hired': { 'Vacation': 3, 'Sick Leave': 3, 'Personal Leave': 0, 'Birthday Leave': 1, 'Maternity Leave': 0, 'Paternity Leave': 0, 'Other': 0 },
+      'custom': { 'Vacation': 999999, 'Sick Leave': 999999, 'Personal Leave': 999999, 'Birthday Leave': 999999, 'Maternity Leave': 999999, 'Paternity Leave': 999999, 'Other': 999999 }
+    };
+
+    function openEditModal(userId, userName) {
+      const user = usersData.find(u => u.id === userId);
+      document.getElementById('modalTitle').textContent = 'Edit Leave - ' + userName;
+      document.getElementById('modalUserId').value = userId;
+      document.getElementById('editModal').classList.add('active');
+      
+      // Load current used days for the first leave type
+      const defaultLeaveType = 'Vacation';
+      const currentUsed = user.leaves_used[defaultLeaveType] || 0;
+      document.getElementById('modalUsedDays').value = currentUsed;
+      document.getElementById('modalLeaveType').value = defaultLeaveType;
+      
+      updateRemaining(userId);
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.remove('active');
+    }
+
+    function updateRemaining(userId) {
+      const user = usersData.find(u => u.id === userId);
+      const leaveType = document.getElementById('modalLeaveType').value;
+      const usedDays = parseInt(document.getElementById('modalUsedDays').value) || 0;
+      
+      const pkg = user.leave_package || 'normal';
+      const totals = packageTotals[pkg] || packageTotals['normal'];
+      const total = totals[leaveType] || 0;
+      const remaining = total - usedDays;
+      
+      const display = total >= 999999 ? '∞ (Unlimited)' : (remaining >= 0 ? remaining : 0);
+      document.getElementById('remainingDisplay').textContent = 'Remaining: ' + display + ' days left';
+    }
+
+    document.getElementById('modalLeaveType').addEventListener('change', function() {
+      const userId = parseInt(document.getElementById('modalUserId').value);
+      const user = usersData.find(u => u.id === userId);
+      const leaveType = this.value;
+      const currentUsed = user.leaves_used[leaveType] || 0;
+      document.getElementById('modalUsedDays').value = currentUsed;
+      updateRemaining(userId);
+    });
+
+    document.getElementById('modalUsedDays').addEventListener('input', function() {
+      const userId = parseInt(document.getElementById('modalUserId').value);
+      updateRemaining(userId);
+    });
+
+    document.getElementById('searchInput').addEventListener('input', function() {
+      const filter = this.value.toLowerCase();
+      document.querySelectorAll('.employee-row').forEach(function(row) {
+        const name = row.querySelector('td').textContent.toLowerCase();
+        row.style.display = name.includes(filter) ? '' : 'none';
+      });
+    });
+
+    document.getElementById('editModal').addEventListener('click', function(e) {
+      if (e.target === this) closeEditModal();
+    });
+  </script>
 </body>
 </html>

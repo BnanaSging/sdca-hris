@@ -20,7 +20,7 @@ Edit `config.php` with your MySQL credentials:
 ```php
 $host = 'localhost';      // Your MySQL host
 $db_user = 'root';        // Your MySQL username
-$db_password = '';        // Your MySQL password
+$db_password = 'root';        // Your MySQL password
 $db_name = 'hris_db';     // Database name
 ```
 

@@ -197,9 +197,9 @@ if ($current_user && isset($current_user['leave_package'])) {
 
 $remaining_leaves = [];
 foreach ($leave_types as $type => $total) {
-    // If available leave is set in users.json, use it directly
+    // If available leave is set in users.json, calculate remaining by subtracting used from total
     if ($current_user && isset($current_user['leaves_used'][$type])) {
-        $remaining_leaves[$type] = $current_user['leaves_used'][$type];
+        $remaining_leaves[$type] = $total - $current_user['leaves_used'][$type];
     } else {
         // Fallback: calculate remaining as before
         $used = 0;
@@ -337,9 +337,9 @@ foreach ($leave_types as $type => $total) {
           }
         }
         foreach ($all_leave_types as $type => $total):
-          // Always use the value from leaves_used if present
+          // Calculate remaining: total minus used days
           if ($current_user && isset($current_user['leaves_used'][$type])) {
-            $remaining = $current_user['leaves_used'][$type];
+            $remaining = $total - $current_user['leaves_used'][$type];
           } else {
             $remaining = isset($remaining_leaves[$type]) ? $remaining_leaves[$type] : 0;
           }

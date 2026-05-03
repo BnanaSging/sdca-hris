@@ -1,4 +1,8 @@
-<?php require 'auth-check.php'; require 'config.php'; ?>
+<?php 
+ob_start();
+require 'auth-check.php'; 
+require 'config.php'; 
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -87,6 +91,7 @@
       file_put_contents('leaves.json', json_encode($leaves, JSON_PRETTY_PRINT));
       file_put_contents($auditlog_file, json_encode($auditlog, JSON_PRETTY_PRINT));
       // Refresh to avoid resubmission
+      ob_end_clean();
       header('Location: leave.php');
       exit();
     }

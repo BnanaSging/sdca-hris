@@ -73,7 +73,7 @@
         "end_date": "2026-03-22",
         "leave_type": "Sick Leave",
         "reason": "sakit ",
-        "status": "Pending",
+        "status": "Denied",
         "applied_date": "2026-03-23 02:00:58"
     },
     {
@@ -84,7 +84,7 @@
         "end_date": "2026-02-14",
         "leave_type": "Personal Leave",
         "reason": "personal",
-        "status": "Pending",
+        "status": "Denied",
         "applied_date": "2026-03-23 02:07:44"
     },
     {
@@ -95,7 +95,7 @@
         "end_date": "2026-04-17",
         "leave_type": "Vacation",
         "reason": "vacation",
-        "status": "Pending",
+        "status": "Denied",
         "applied_date": "2026-03-23 02:24:04"
     },
     {
@@ -108,5 +108,71 @@
         "reason": "hika ",
         "status": "Approved",
         "applied_date": "2026-04-04 22:10:11"
+    },
+    {
+        "id": 11,
+        "user_id": 2,
+        "employee_name": "vincent estacio",
+        "start_date": "2026-05-05",
+        "end_date": "2026-05-09",
+        "leave_type": "Vacation",
+        "reason": "family ",
+        "status": "Approved",
+        "applied_date": "2026-04-27 16:18:55"
+    },
+    {
+        "id": 12,
+        "user_id": 2,
+        "employee_name": "vincent estacio",
+        "start_date": "2026-05-05",
+        "end_date": "2026-05-09",
+        "leave_type": "Vacation",
+        "reason": "ayos",
+        "status": "Approved",
+        "applied_date": "2026-04-27 16:20:48"
+    },
+    {
+        "id": 13,
+        "user_id": 2,
+        "employee_name": "vincent estacio",
+        "start_date": "2026-05-05",
+        "end_date": "2026-05-06",
+        "leave_type": "Vacation",
+        "reason": "1",
+        "status": "Approved",
+        "applied_date": "2026-04-27 16:31:09"
+    },
+    {
+        "id": 14,
+        "user_id": 2,
+        "employee_name": "vincent estacio",
+        "start_date": "2026-05-07",
+        "end_date": "2026-05-09",
+        "leave_type": "Vacation",
+        "reason": "2",
+        "status": "Approved",
+        "applied_date": "2026-04-27 16:36:07"
+    },
+    {
+        "id": 15,
+        "user_id": 2,
+        "employee_name": "vincent estacio",
+        "start_date": "2026-05-05",
+        "end_date": "2026-05-06",
+        "leave_type": "Vacation",
+        "reason": "3",
+        "status": "Approved",
+        "applied_date": "2026-04-27 16:38:06"
+    },
+    {
+        "id": 16,
+        "user_id": 2,
+        "employee_name": "vincent estacio",
+        "start_date": "2026-04-22",
+        "end_date": "2026-04-24",
+        "leave_type": "Sick Leave",
+        "reason": "sick leave",
+        "status": "Approved",
+        "applied_date": "2026-04-27 16:38:42"
     }
 ]
