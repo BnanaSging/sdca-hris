@@ -10,7 +10,7 @@
   <?php include 'sidebar.php'; ?>
   <main class="main-content">
     <h1>Home</h1>
-    <p>Welcome to the SDCA HRIS. Use the sidebar to navigate.</p>
+    <p>Welcome to the SDCA HRIS.</p>
     <div class="card user-card">
       <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 15px;">
         <div class="user-avatar">
