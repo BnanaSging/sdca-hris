@@ -100,7 +100,7 @@ require 'config.php';
     <div class="card">
       <table>
         <thead>
-          <tr><th>Employee</th><th>Type</th><th>Status</th><th>Start Date</th><th>End Date</th><th>Reason</th></tr>
+          <tr><th>Employee</th><th>Type</th><th>Status</th><th>Start Date</th><th>End Date</th><th>Reason</th><th>Attachment</th><th>Actions</th></tr>
         </thead>
         <tbody>
         <?php
@@ -142,6 +142,12 @@ require 'config.php';
             echo '<td>' . htmlspecialchars($leave['start_date']) . '</td>';
             echo '<td>' . htmlspecialchars($leave['end_date']) . '</td>';
             echo '<td>' . htmlspecialchars($leave['reason']) . '</td>';
+            // Attachment column
+            if (isset($leave['attachment']) && !empty($leave['attachment'])) {
+              echo '<td><a href="download-leave-document.php?file=' . urlencode($leave['attachment']) . '" style="color:#2563eb;text-decoration:none;">📥 Download</a></td>';
+            } else {
+              echo '<td>-</td>';
+            }
             // Approve/Deny buttons only if status is Pending
             if (strtolower($leave['status']) === 'pending') {
               echo '<td>';
@@ -169,6 +175,12 @@ require 'config.php';
               echo '<td>' . htmlspecialchars($leave['start_date']) . '</td>';
               echo '<td>' . htmlspecialchars($leave['end_date']) . '</td>';
               echo '<td>' . htmlspecialchars($leave['reason']) . '</td>';
+              // Attachment column
+              if (isset($leave['attachment']) && !empty($leave['attachment'])) {
+                echo '<td><a href="download-leave-document.php?file=' . urlencode($leave['attachment']) . '" style="color:#2563eb;text-decoration:none;">📥 Download</a></td>';
+              } else {
+                echo '<td>-</td>';
+              }
               // Approve/Deny buttons only if status is Pending
               if (strtolower($leave['status']) === 'pending') {
                 echo '<td>';
@@ -189,7 +201,7 @@ require 'config.php';
           }
         }
         if (!$found) {
-          echo '<tr><td colspan="7" style="text-align:center; color:#999;">No leave applications found for your approval.</td></tr>';
+          echo '<tr><td colspan="8" style="text-align:center; color:#999;">No leave applications found for your approval.</td></tr>';
         }
         ?>
         </tbody>

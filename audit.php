@@ -102,7 +102,17 @@ function createPaginationLinks($current_page, $total_pages, $page_param, $other_
 <body class="page">
   <?php include 'sidebar.php'; ?>
   <main class="main-content">
-    <h1>Audit Trail</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h1 style="margin: 0;">Audit Trail</h1>
+      <div style="display: flex; gap: 10px;">
+        <form method="POST" action="audit-export.php" style="display: inline;">
+          <input type="hidden" name="export_type" value="pdf">
+          <button type="submit" class="btn" style="background: #dc3545; padding: 10px 16px; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+            📄 Export as PDF
+          </button>
+        </form>
+      </div>
+    </div>
     
     <!-- Leave Actions Section -->
     <div class="card">

@@ -185,5 +185,29 @@
         "reason": "vacation to cavite",
         "status": "Approved",
         "applied_date": "2026-05-03 02:08:51"
+    },
+    {
+        "id": 18,
+        "user_id": 2,
+        "employee_name": "vincent estacio",
+        "start_date": "2026-05-01",
+        "end_date": "2026-05-01",
+        "leave_type": "Sick Leave",
+        "reason": "Cat bite",
+        "status": "Pending",
+        "applied_date": "2026-05-03 03:26:26",
+        "attachment": "leave_69f6c0623caf9.jpg"
+    },
+    {
+        "id": 19,
+        "user_id": 7,
+        "employee_name": "James Bond",
+        "start_date": "2026-04-08",
+        "end_date": "2026-04-08",
+        "leave_type": "Sick Leave",
+        "reason": "disband",
+        "status": "Pending",
+        "applied_date": "2026-05-03 13:26:09",
+        "attachment": "leave_69f74cf1ad891.jpg"
     }
 ]

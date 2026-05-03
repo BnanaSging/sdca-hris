@@ -22,6 +22,29 @@ $users = getUsers();
     <div class="search-row" style="margin-bottom: 16px;">
       <input id="searchInput" placeholder="Search employees..." oninput="filterEmployees()" />
     </div>
+    
+    <div style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 8px;">
+      <strong style="display: block; margin-bottom: 10px;">Filter by Department:</strong>
+      <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+        <label style="display: flex; align-items: center; cursor: pointer;">
+          <input type="radio" name="department_filter" value="all" checked onchange="filterEmployees()" style="margin-right: 8px; cursor: pointer;">
+          <span>All Departments</span>
+        </label>
+        <label style="display: flex; align-items: center; cursor: pointer;">
+          <input type="radio" name="department_filter" value="BSIT" onchange="filterEmployees()" style="margin-right: 8px; cursor: pointer;">
+          <span>BSIT</span>
+        </label>
+        <label style="display: flex; align-items: center; cursor: pointer;">
+          <input type="radio" name="department_filter" value="BMMA" onchange="filterEmployees()" style="margin-right: 8px; cursor: pointer;">
+          <span>BMMA</span>
+        </label>
+        <label style="display: flex; align-items: center; cursor: pointer;">
+          <input type="radio" name="department_filter" value="BACCOM" onchange="filterEmployees()" style="margin-right: 8px; cursor: pointer;">
+          <span>BACCOM</span>
+        </label>
+      </div>
+    </div>
+    
     <div id="employeeCardGrid" style="display: flex; flex-wrap: wrap; gap: 24px;">
         <?php 
         if (empty($users)) {
@@ -56,7 +79,7 @@ $users = getUsers();
               $gender = isset($user['gender']) ? strtolower($user['gender']) : '';
               $avatar = $gender === 'female' ? 'woman.png' : 'man.png';
               $cardStyle = $is_self ? 'background:#e0f7fa; font-weight:bold;' : '';
-              echo '<div class="employee-card" style="width:260px; min-height:320px; background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.07); padding:22px 18px 16px 18px; position:relative; ' . $cardStyle . '">';
+              echo '<div class="employee-card" style="width:260px; min-height:320px; background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.07); padding:22px 18px 16px 18px; position:relative; ' . $cardStyle . '" data-department="' . htmlspecialchars($user['department']) . '">';
               echo '<div style="display:flex; flex-direction:column; align-items:flex-start;">';
               echo '<img src="image/' . $avatar . '" alt="Avatar" style="width:70px; height:70px; border-radius:50%; background:#f0f0f0; margin-bottom:12px; align-self:center;">';
               echo '<div style="font-size:1.15em; font-weight:600; margin-bottom:2px;">' . htmlspecialchars($user['name']) . '</div>';
@@ -155,10 +178,14 @@ $users = getUsers();
         }
     function filterEmployees() {
       const filter = document.getElementById('searchInput').value.toLowerCase();
+      const departmentFilter = document.querySelector('input[name="department_filter"]:checked').value;
       const cards = document.querySelectorAll('.employee-card');
       cards.forEach(card => {
         const text = card.innerText.toLowerCase();
-        card.style.display = text.includes(filter) ? '' : 'none';
+        const department = card.getAttribute('data-department');
+        const matchesSearch = text.includes(filter);
+        const matchesDepartment = departmentFilter === 'all' || department === departmentFilter;
+        card.style.display = (matchesSearch && matchesDepartment) ? '' : 'none';
       });
     }
   </script>

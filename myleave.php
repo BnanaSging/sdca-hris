@@ -3,6 +3,12 @@ require 'auth-check.php';
 require 'config.php';
 
 $leave_file = __DIR__ . '/leaves.json';
+$upload_dir = __DIR__ . '/leave_documents';
+
+// Create upload directory if it doesn't exist
+if (!is_dir($upload_dir)) {
+    mkdir($upload_dir, 0755, true);
+}
 
 // Initialize leaves file if it doesn't exist
 if (!file_exists($leave_file)) {
@@ -23,6 +29,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         if ($leave['id'] == $leave_id && $leave['user_id'] == $_SESSION['user_id']) {
           if (strtolower($leave['status']) === 'pending') {
             $can_delete = true;
+            // Delete attached files
+            if (isset($leave['attachment']) && !empty($leave['attachment'])) {
+              $file_path = $upload_dir . '/' . basename($leave['attachment']);
+              if (file_exists($file_path)) {
+                unlink($file_path);
+              }
+            }
           }
           break;
         }
@@ -41,11 +54,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 // Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['action'])) {
     $start_date = isset($_POST['start_date']) ? $_POST['start_date'] : '';
     $end_date = isset($_POST['end_date']) ? $_POST['end_date'] : '';
     $leave_type = isset($_POST['leave_type']) ? $_POST['leave_type'] : '';
     $reason = isset($_POST['reason']) ? $_POST['reason'] : '';
+    $attachment = null;
+    
+    // Handle file upload (required for Sick Leave)
+    if (!empty($_FILES['attachment']['name'])) {
+      $file = $_FILES['attachment'];
+      $max_size = 5 * 1024 * 1024; // 5MB
+      $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      
+      if ($file['size'] > $max_size) {
+        $error = 'File size cannot exceed 5MB';
+      } elseif (!in_array($file['type'], $allowed_types)) {
+        $error = 'Invalid file type. Allowed: JPG, PNG, GIF, PDF, DOC, DOCX';
+      } else {
+        $file_ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $file_name = uniqid('leave_') . '.' . $file_ext;
+        $file_path = $upload_dir . '/' . $file_name;
+        
+        if (move_uploaded_file($file['tmp_name'], $file_path)) {
+          $attachment = $file_name;
+        } else {
+          $error = 'Failed to upload file';
+        }
+      }
+    }
+    
+    // Sick Leave requires attachment
+    if ($leave_type === 'Sick Leave' && empty($attachment)) {
+      $error = 'Medical documentation is required for Sick Leave applications';
+    }
     
     if (empty($start_date) || empty($end_date) || empty($leave_type) || empty($reason)) {
         $error = 'Please fill in all fields';
@@ -120,7 +162,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'leave_type' => $leave_type,
                 'reason' => $reason,
                 'status' => 'Pending',
-                'applied_date' => date('Y-m-d H:i:s')
+                'applied_date' => date('Y-m-d H:i:s'),
+                'attachment' => $attachment
             ];
             
             $leaves[] = $new_leave;
@@ -272,7 +315,7 @@ foreach ($leave_types as $type => $total) {
           <div class="error-msg"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
         
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
           <div class="form-group">
             <label for="leave_type">Leave Type</label>
             <select id="leave_type" name="leave_type" required onchange="updateLeaveInfo()">
@@ -318,6 +361,14 @@ foreach ($leave_types as $type => $total) {
           <div class="form-group">
             <label for="reason">Reason</label>
             <textarea id="reason" name="reason" placeholder="Please provide details about your leave..." required></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="attachment">Attachment <span id="required-label" style="color: #ef4444;">*Required for Sick Leave</span></label>
+            <input type="file" id="attachment" name="attachment" accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx" />
+            <div style="font-size: 0.8rem; color: #666; margin-top: 4px;">
+              Allowed formats: JPG, PNG, GIF, PDF, DOC, DOCX (Max 5MB)
+            </div>
           </div>
           
           <button type="submit" class="btn">Submit Leave Request</button>
@@ -383,6 +434,14 @@ foreach ($leave_types as $type => $total) {
                   <strong>Reason:</strong> <?php echo htmlspecialchars($leave['reason']); ?>
                 </div>
               </div>
+              <?php if (isset($leave['attachment']) && !empty($leave['attachment'])): ?>
+              <div style="margin-top: 10px; padding: 10px; background: #f0f9ff; border-radius: 5px;">
+                <strong style="color: #2563eb;">📎 Attachment:</strong><br>
+                <a href="download-leave-document.php?file=<?php echo urlencode($leave['attachment']); ?>" class="btn" style="display: inline-block; margin-top: 5px; padding: 6px 12px; font-size: 0.9rem;">
+                  📥 Download Document
+                </a>
+              </div>
+              <?php endif; ?>
               <?php if (strtolower($leave['status']) === 'pending'): ?>
               <div style="margin-top: 12px;">
                 <form method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this leave application?');">
@@ -402,10 +461,11 @@ foreach ($leave_types as $type => $total) {
     function updateLeaveInfo() {
       const leaveType = document.getElementById('leave_type').value;
       const infoText = document.getElementById('leave-info-text');
+      const requiredLabel = document.getElementById('required-label');
       
       const leaveInfo = {
         'Vacation': '✓ Advanced leave: Must apply at least 3 days in advance',
-        'Sick Leave': '✓ Retroactive leave: Can be applied for past dates',
+        'Sick Leave': '✓ Retroactive leave: Can be applied for past dates | Requires medical documentation',
         'Personal Leave': '✓ Retroactive leave: Can be applied for past dates',
         'Maternity Leave': '✓ Advanced leave: Must apply at least 3 days in advance',
         'Paternity Leave': '✓ Advanced leave: Must apply at least 3 days in advance',
@@ -417,6 +477,15 @@ foreach ($leave_types as $type => $total) {
         infoText.style.display = 'block';
       } else {
         infoText.style.display = 'none';
+      }
+      
+      // Show/hide required label for attachment
+      if (leaveType === 'Sick Leave') {
+        requiredLabel.style.display = 'inline';
+        document.getElementById('attachment').required = true;
+      } else {
+        requiredLabel.style.display = 'none';
+        document.getElementById('attachment').required = false;
       }
     }
   </script>
