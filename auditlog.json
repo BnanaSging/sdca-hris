@@ -670,5 +670,25 @@
         "old_balance": 0,
         "new_balance": 0,
         "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-05-03 02:09:15",
+        "action": "Approve",
+        "leave_id": 17,
+        "leave_type": "Vacation",
+        "employee_name": "vincent estacio",
+        "start_date": "2026-05-07",
+        "end_date": "2026-05-08",
+        "approved_by": "Admin",
+        "old_status": "Pending",
+        "new_status": "Approved"
+    },
+    {
+        "timestamp": "2026-05-03 02:57:24",
+        "action": "Announcement Created",
+        "title": "Test",
+        "created_by": "Admin",
+        "pinned": 0,
+        "expires_at": "2026-07-09T10:57"
     }
 ]

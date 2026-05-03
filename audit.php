@@ -30,20 +30,33 @@ foreach (array_reverse($auditlog) as $entry) {
   }
 }
 
+// Filter announcement changes
+$announcement_changes = [];
+foreach (array_reverse($auditlog) as $entry) {
+  $action = $entry['action'] ?? '';
+  if (in_array($action, ['Announcement Created', 'Announcement Updated', 'Announcement Deleted'])) {
+    $announcement_changes[] = $entry;
+  }
+}
+
 // Get current pages from query params
 $action_page = isset($_GET['action_page']) ? max(1, intval($_GET['action_page'])) : 1;
 $balance_page = isset($_GET['balance_page']) ? max(1, intval($_GET['balance_page'])) : 1;
+$announcement_page = isset($_GET['announcement_page']) ? max(1, intval($_GET['announcement_page'])) : 1;
 
 // Calculate totals
 $action_total_pages = ceil(count($leave_actions) / $per_page) ?: 1;
 $balance_total_pages = ceil(count($balance_changes) / $per_page) ?: 1;
+$announcement_total_pages = ceil(count($announcement_changes) / $per_page) ?: 1;
 
 // Paginate results
 $action_start = ($action_page - 1) * $per_page;
 $balance_start = ($balance_page - 1) * $per_page;
+$announcement_start = ($announcement_page - 1) * $per_page;
 
 $action_page_data = array_slice($leave_actions, $action_start, $per_page);
 $balance_page_data = array_slice($balance_changes, $balance_start, $per_page);
+$announcement_page_data = array_slice($announcement_changes, $announcement_start, $per_page);
 
 function createPaginationLinks($current_page, $total_pages, $page_param, $other_params = '') {
   $links = '';
@@ -136,7 +149,7 @@ function createPaginationLinks($current_page, $total_pages, $page_param, $other_
       
       <?php if (count($leave_actions) > 0): ?>
         <div class="pagination">
-          <?php echo createPaginationLinks($action_page, $action_total_pages, 'action_page', '&balance_page=' . $balance_page); ?>
+          <?php echo createPaginationLinks($action_page, $action_total_pages, 'action_page', '&balance_page=' . $balance_page . '&announcement_page=' . $announcement_page); ?>
         </div>
       <?php endif; ?>
     </div>
@@ -191,7 +204,53 @@ function createPaginationLinks($current_page, $total_pages, $page_param, $other_
       
       <?php if (count($balance_changes) > 0): ?>
         <div class="pagination">
-          <?php echo createPaginationLinks($balance_page, $balance_total_pages, 'balance_page', '&action_page=' . $action_page); ?>
+          <?php echo createPaginationLinks($balance_page, $balance_total_pages, 'balance_page', '&action_page=' . $action_page . '&announcement_page=' . $announcement_page); ?>
+        </div>
+      <?php endif; ?>
+    </div>
+
+    <!-- Announcement Changes Section -->
+    <div class="card" style="margin-top: 32px;">
+      <p style="font-weight: 600; font-size: 1.1em;">Announcement Changes (Created, Updated, Deleted)</p>
+      <?php if (count($announcement_changes) > 0): ?>
+        <div class="page-info">Showing <?php echo ($announcement_start + 1); ?>-<?php echo min($announcement_start + $per_page, count($announcement_changes)); ?> of <?php echo count($announcement_changes); ?> entries</div>
+      <?php endif; ?>
+      <table style="width:100%;margin-top:20px;">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Action</th>
+            <th>Announcement Title</th>
+            <th>By</th>
+            <th>Pinned</th>
+            <th>Expires At</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php
+        if (count($announcement_page_data) > 0) {
+          foreach ($announcement_page_data as $entry) {
+            echo '<tr>';
+            echo '<td>' . htmlspecialchars($entry['timestamp']) . '</td>';
+            echo '<td>' . htmlspecialchars($entry['action']) . '</td>';
+            echo '<td>' . htmlspecialchars($entry['title'] ?? '-') . '</td>';
+            $by = $entry['created_by'] ?? $entry['updated_by'] ?? $entry['deleted_by'] ?? '-';
+            echo '<td>' . htmlspecialchars($by) . '</td>';
+            $pinned = $entry['pinned'] ?? '-';
+            echo '<td>' . ($pinned === '-' ? '-' : ($pinned ? '✓ Yes' : '✗ No')) . '</td>';
+            echo '<td>' . htmlspecialchars($entry['expires_at'] ?? '-') . '</td>';
+            echo '</tr>';
+          }
+        } else {
+          echo '<tr><td colspan="6" style="text-align:center;color:#999;">No announcement changes yet.</td></tr>';
+        }
+        ?>
+        </tbody>
+      </table>
+      
+      <?php if (count($announcement_changes) > 0): ?>
+        <div class="pagination">
+          <?php echo createPaginationLinks($announcement_page, $announcement_total_pages, 'announcement_page', '&action_page=' . $action_page . '&balance_page=' . $balance_page); ?>
         </div>
       <?php endif; ?>
     </div>

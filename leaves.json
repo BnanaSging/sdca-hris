@@ -174,5 +174,16 @@
         "reason": "sick leave",
         "status": "Approved",
         "applied_date": "2026-04-27 16:38:42"
+    },
+    {
+        "id": 17,
+        "user_id": 2,
+        "employee_name": "vincent estacio",
+        "start_date": "2026-05-07",
+        "end_date": "2026-05-08",
+        "leave_type": "Vacation",
+        "reason": "vacation to cavite",
+        "status": "Approved",
+        "applied_date": "2026-05-03 02:08:51"
     }
 ]

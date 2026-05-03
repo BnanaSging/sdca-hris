@@ -25,6 +25,9 @@ if (isset($_SESSION['user_id'])) {
     <a href="leavebalances.php" class="nav-link<?php if(basename($_SERVER['PHP_SELF'])=='leavebalances.php')echo' active';?>">Leave Balances</a>
   <?php endif; ?>
   <?php if ($show_leave_balances): ?>
+    <a href="admin-announcements.php" class="nav-link<?php if(basename($_SERVER['PHP_SELF'])=='admin-announcements.php')echo' active';?>">Manage Announcements</a>
+  <?php endif; ?>
+  <?php if ($show_leave_balances): ?>
     <a href="audit.php" class="nav-link<?php if(basename($_SERVER['PHP_SELF'])=='audit.php')echo' active';?>">Audit Trail</a>
   <?php endif; ?>
   <a href="logout.php" class="nav-link logout">Logout</a>
