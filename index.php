@@ -35,6 +35,7 @@
       <p><strong>Position:</strong> <?php echo isset($_SESSION['position']) ? htmlspecialchars($_SESSION['position']) : 'N/A'; ?></p>
       <p><strong>Department:</strong> <?php echo isset($_SESSION['department']) ? htmlspecialchars($_SESSION['department']) : 'N/A'; ?></p>
     </div>
+
     <div class="stats-grid">
       <?php
         $users = file_exists('users.json') ? json_decode(file_get_contents('users.json'), true) : [];
@@ -62,23 +63,27 @@
           $dept = $user['department'] ?? 'Other';
           $department_counts[$dept] = ($department_counts[$dept] ?? 0) + 1;
         }
-      ?>
-      <a href="employeedirectory.php" class="card"><h3>Total Employees</h3><p><?php echo $total_employees; ?></p></a>
-      <a href="leave.php" class="card"><h3>Pending Leaves</h3><p><?php echo $pending_leaves; ?></p></a>
-      <?php
+
         $is_admin = false;
         if (isset($_SESSION['position']) && strtolower($_SESSION['position']) === 'admin') {
           $is_admin = true;
         } else if (isset($_SESSION['email']) && strtolower($_SESSION['email']) === 'admin') {
           $is_admin = true;
         }
-        if ($is_admin):
       ?>
+      <a href="employeedirectory.php" class="card"><h3>Total Employees</h3><p><?php echo $total_employees; ?></p></a>
+      <a href="leave.php" class="card"><h3>Pending Leaves</h3><p><?php echo $pending_leaves; ?></p></a>
+      <a href="announcements.php" class="card"><h3>Announcements</h3><p>View updates</p></a>
+      <?php if ($is_admin): ?>
+      <a href="leavebalances.php" class="card"><h3>Leave Balances</h3><p>Check balances</p></a>
+      <?php endif; ?>
+
+      <?php if ($is_admin): ?>
       <a href="audit.php" class="card"><h3>Open Audits</h3><p>2</p></a>
       <?php endif; ?>
-    </div>
+      </div>
 
-    <div class="stats-grid" style="margin-top: 30px; gap: 32px;">
+      <div class="stats-grid" style="margin-top: 30px; gap: 32px;">
       <div class="card" style="flex:1; min-width:320px;">
         <h3 style="margin-bottom:10px;">Leave Types Distribution</h3>
         <canvas id="leaveTypeChart" width="320" height="220"></canvas>
@@ -103,6 +108,10 @@
     const leaveTypeLabels = <?php echo json_encode(array_keys($leave_type_counts)); ?>;
     const deptData = <?php echo json_encode(array_values($department_counts)); ?>;
     const deptLabels = <?php echo json_encode(array_keys($department_counts)); ?>;
+    const deptColors = deptLabels.map((_, index) => {
+      const palette = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#a21caf', '#0ea5e9', '#f43f5e', '#eab308', '#6366f1'];
+      return palette[index % palette.length];
+    });
 
     // Pie chart for leave types
     new Chart(document.getElementById('leaveTypeChart').getContext('2d'), {
@@ -131,7 +140,7 @@
         datasets: [{
           label: 'Leaves',
           data: deptData,
-          backgroundColor: '#2563eb',
+          backgroundColor: deptColors,
         }]
       },
       options: {

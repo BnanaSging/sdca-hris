@@ -209,5 +209,29 @@
         "status": "Pending",
         "applied_date": "2026-05-03 13:26:09",
         "attachment": "leave_69f74cf1ad891.jpg"
+    },
+    {
+        "id": 20,
+        "user_id": 9,
+        "employee_name": "Han Solo",
+        "start_date": "2026-05-06",
+        "end_date": "2026-05-08",
+        "leave_type": "Personal Leave",
+        "reason": "personal matters",
+        "status": "Approved",
+        "applied_date": "2026-05-03 23:48:42",
+        "attachment": null
+    },
+    {
+        "id": 21,
+        "user_id": 9,
+        "employee_name": "Han Solo",
+        "start_date": "2026-07-05",
+        "end_date": "2026-07-05",
+        "leave_type": "Birthday Leave",
+        "reason": "birthday",
+        "status": "Approved",
+        "applied_date": "2026-05-03 23:53:13",
+        "attachment": null
     }
 ]

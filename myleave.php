@@ -18,6 +18,97 @@ if (!file_exists($leave_file)) {
 $message = '';
 $error = '';
 
+$users = getUsers();
+$current_user = null;
+foreach ($users as $u) {
+  if ($u['id'] == $_SESSION['user_id']) {
+    $current_user = $u;
+    break;
+  }
+}
+
+// Get user's leave applications early (needed for balance calculation)
+$leaves = json_decode(file_exists($leave_file) ? file_get_contents($leave_file) : '[]', true);
+$user_leaves = array_filter($leaves, function($leave) {
+    return $leave['user_id'] == $_SESSION['user_id'];
+});
+
+// Define leave types based on user's package
+$leave_types = [];
+if ($current_user && isset($current_user['leave_package'])) {
+  switch ($current_user['leave_package']) {
+    case 'normal':
+      $leave_types = [
+        'Vacation' => 15,
+        'Sick Leave' => 15,
+        'Birthday Leave' => 1,
+        'Personal Leave' => 15,
+      ];
+      break;
+    case 'newly_hired':
+      $leave_types = [
+        'Vacation' => 3,
+        'Sick Leave' => 3,
+        'Birthday Leave' => 1,
+      ];
+      break;
+    case 'custom':
+      $leave_types = [
+        'Vacation' => INF,
+        'Sick Leave' => INF,
+        'Birthday Leave' => INF,
+        'Personal Leave' => INF,
+        'Maternity Leave' => INF,
+        'Paternity Leave' => INF,
+        'Other' => INF
+      ];
+      break;
+    default:
+      $leave_types = [
+        'Vacation' => 15,
+        'Sick Leave' => 15,
+        'Birthday Leave' => 1,
+        'Personal Leave' => 15,
+      ];
+  }
+} else {
+  // fallback
+  $leave_types = [
+    'Vacation' => 15,
+    'Sick Leave' => 15,
+    'Birthday Leave' => 1,
+    'Personal Leave' => 15,
+  ];
+}
+
+// Calculate remaining leaves
+$remaining_leaves = [];
+foreach ($leave_types as $type => $total) {
+    // If available leave is set in users.json, calculate remaining by subtracting used from total
+    if ($current_user && isset($current_user['leaves_used'][$type])) {
+        $remaining_leaves[$type] = $total - $current_user['leaves_used'][$type];
+    } else {
+        // Fallback: calculate remaining as before
+        $used = 0;
+        foreach ($user_leaves as $leave) {
+            if ($leave['leave_type'] === $type && $leave['status'] === 'Approved') {
+                $start = new DateTime($leave['start_date']);
+                $end = new DateTime($leave['end_date']);
+                $interval = $start->diff($end);
+                $used += $interval->days + 1; // +1 to include the end date
+            }
+        }
+        $remaining_leaves[$type] = $total - $used;
+    }
+}
+
+function getLeaveBalance($type, $leave_types, $remaining_leaves) {
+    if (isset($leave_types[$type]) && $leave_types[$type] === INF) {
+        return INF;
+    }
+    return isset($remaining_leaves[$type]) ? $remaining_leaves[$type] : 0;
+}
+
 // Handle delete request
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete') {
     $leave_id = isset($_POST['leave_id']) ? intval($_POST['leave_id']) : 0;
@@ -96,9 +187,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['action'])) {
         $today->setTime(0, 0, 0); // Set to midnight for fair comparison
         $start_date_obj = new DateTime($start_date);
         $end_date_obj = new DateTime($end_date);
+        $leave_balance = getLeaveBalance($leave_type, $leave_types, $remaining_leaves);
+
+        if ($leave_balance !== INF && $leave_balance <= 0) {
+            $error = htmlspecialchars($leave_type) . ' is no longer available because your balance is 0.';
+        }
+
+        // Check if requested days exceed available balance
+        if (!$error && $leave_balance !== INF) {
+            $days_requested = $end_date_obj->diff($start_date_obj)->days + 1; // +1 to include end date
+            if ($days_requested > $leave_balance) {
+                $error = htmlspecialchars($leave_type) . ' balance is ' . $leave_balance . ' day(s), but you are requesting ' . $days_requested . ' day(s).';
+            }
+        }
         
         // Check based on leave type
-        if (in_array($leave_type, ['Vacation', 'Maternity Leave', 'Paternity Leave'])) {
+        if (!$error && in_array($leave_type, ['Vacation', 'Maternity Leave', 'Paternity Leave'])) {
             // Advance leave: must be applied at least 3 days before start date
             $min_date = (clone $today)->modify('+3 days');
             if ($start_date_obj < $min_date) {
@@ -106,15 +210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['action'])) {
             }
         }
         // Gender-based leave rules
-        if (in_array($leave_type, ['Maternity Leave', 'Paternity Leave'])) {
-          $users = getUsers();
-          $current_user = null;
-          foreach ($users as $u) {
-            if ($u['id'] == $_SESSION['user_id']) {
-              $current_user = $u;
-              break;
-            }
-          }
+        if (!$error && in_array($leave_type, ['Maternity Leave', 'Paternity Leave'])) {
           if ($current_user && !empty($current_user['gender'])) {
             if ($leave_type === 'Maternity Leave' && strtolower($current_user['gender']) !== 'female') {
               $error = 'Only female users can apply for Maternity Leave.';
@@ -124,26 +220,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['action'])) {
             }
           }
         }
-      // Birthday Leave: only in birth month
-      if ($leave_type === 'Birthday Leave') {
-        $users = getUsers();
-        $current_user = null;
-        foreach ($users as $u) {
-          if ($u['id'] == $_SESSION['user_id']) {
-            $current_user = $u;
-            break;
+        // Birthday Leave: only in the user's birth month, regardless of position.
+        if (!$error && $leave_type === 'Birthday Leave') {
+          if ($current_user && !empty($current_user['birthday'])) {
+            $birth_month = (new DateTime($current_user['birthday']))->format('m');
+            $requested_month = $start_date_obj->format('m');
+            if ($birth_month !== $requested_month) {
+              $error = 'Birthday Leave can only be applied during your birth month.';
+            }
+          } else {
+            $error = 'Birthday not set for your account.';
           }
         }
-        if ($current_user && !empty($current_user['birthday'])) {
-          $birth_month = (new DateTime($current_user['birthday']))->format('m');
-          $apply_month = $start_date_obj->format('m');
-          if ($birth_month !== $apply_month) {
-            $error = 'Birthday Leave can only be applied during your birth month.';
-          }
-        } else {
-          $error = 'Birthday not set for your account.';
-        }
-      }
         // Sick Leave, Personal Leave, Other: allow past dates (no advance requirement)
         
         if (!$error && $end_date_obj < $start_date_obj) {
@@ -152,6 +240,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['action'])) {
         
         if (!$error) {
             $leaves = json_decode(file_get_contents($leave_file), true);
+            // Refresh leave calculations after potential file changes
+            $user_leaves = array_filter($leaves, function($leave) {
+                return $leave['user_id'] == $_SESSION['user_id'];
+            });
             
             $new_leave = [
                 'id' => count($leaves) + 1,
@@ -173,90 +265,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['action'])) {
     }
 }
 
-// Get user's leave applications
+// Refresh leaves from file to capture any updates during form submission
 $leaves = json_decode(file_get_contents($leave_file), true);
 $user_leaves = array_filter($leaves, function($leave) {
     return $leave['user_id'] == $_SESSION['user_id'];
 });
-
-// Calculate remaining leaves
-
-// Get user's leave package
-$users = getUsers();
-$current_user = null;
-foreach ($users as $u) {
-  if ($u['id'] == $_SESSION['user_id']) {
-    $current_user = $u;
-    break;
-  }
-}
-
-$leave_types = [];
-if ($current_user && isset($current_user['leave_package'])) {
-  switch ($current_user['leave_package']) {
-    case 'normal':
-      $leave_types = [
-        'Vacation' => 15,
-        'Sick Leave' => 15,
-        'Birthday Leave' => 1,
-        'Personal Leave' => 15,
-      ];
-      break;
-    case 'newly_hired':
-      $leave_types = [
-        'Vacation' => 3,
-        'Sick Leave' => 3,
-        'Birthday Leave' => 1,
-      ];
-      break;
-    case 'custom':
-      $leave_types = [
-        'Vacation' => INF,
-        'Sick Leave' => INF,
-        'Birthday Leave' => INF,
-        'Personal Leave' => INF,
-        'Maternity Leave' => INF,
-        'Paternity Leave' => INF,
-        'Other' => INF
-      ];
-      break;
-    default:
-      $leave_types = [
-        'Vacation' => 15,
-        'Sick Leave' => 15,
-        'Birthday Leave' => 1,
-        'Personal Leave' => 15,
-      ];
-  }
-} else {
-  // fallback
-  $leave_types = [
-    'Vacation' => 15,
-    'Sick Leave' => 15,
-    'Birthday Leave' => 1,
-    'Personal Leave' => 15,
-  ];
-}
-
-$remaining_leaves = [];
-foreach ($leave_types as $type => $total) {
-    // If available leave is set in users.json, calculate remaining by subtracting used from total
-    if ($current_user && isset($current_user['leaves_used'][$type])) {
-        $remaining_leaves[$type] = $total - $current_user['leaves_used'][$type];
-    } else {
-        // Fallback: calculate remaining as before
-        $used = 0;
-        foreach ($user_leaves as $leave) {
-            if ($leave['leave_type'] === $type && $leave['status'] === 'Approved') {
-                $start = new DateTime($leave['start_date']);
-                $end = new DateTime($leave['end_date']);
-                $interval = $start->diff($end);
-                $used += $interval->days + 1; // +1 to include the end date
-            }
-        }
-        $remaining_leaves[$type] = $total - $used;
-    }
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -325,19 +338,15 @@ foreach ($leave_types as $type => $total) {
               <option value="Personal Leave">Personal Leave</option>
               <option value="Birthday Leave">Birthday Leave</option>
               <?php
-                $users = getUsers();
-                $current_user = null;
-                foreach ($users as $u) {
-                  if ($u['id'] == $_SESSION['user_id']) {
-                    $current_user = $u;
-                    break;
-                  }
-                }
                 if ($current_user && isset($current_user['gender'])) {
                   if (strtolower($current_user['gender']) === 'female') {
-                    echo '<option value="Maternity Leave">Maternity Leave</option>';
+                    $maternity_balance = getLeaveBalance('Maternity Leave', $leave_types, $remaining_leaves);
+                    $maternity_disabled = ($maternity_balance !== INF && $maternity_balance <= 0) ? 'disabled' : '';
+                    echo '<option value="Maternity Leave" ' . $maternity_disabled . '>Maternity Leave' . (($maternity_disabled === 'disabled') ? ' (No balance left)' : '') . '</option>';
                   } else if (strtolower($current_user['gender']) === 'male') {
-                    echo '<option value="Paternity Leave">Paternity Leave</option>';
+                    $paternity_balance = getLeaveBalance('Paternity Leave', $leave_types, $remaining_leaves);
+                    $paternity_disabled = ($paternity_balance !== INF && $paternity_balance <= 0) ? 'disabled' : '';
+                    echo '<option value="Paternity Leave" ' . $paternity_disabled . '>Paternity Leave' . (($paternity_disabled === 'disabled') ? ' (No balance left)' : '') . '</option>';
                   }
                 }
               ?>

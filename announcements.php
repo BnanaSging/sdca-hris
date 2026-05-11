@@ -100,6 +100,19 @@
     }
     
     $announcements = getPublishedAnnouncements();
+
+    // Always show pinned announcements first, then newest within each group.
+    usort($announcements, function ($a, $b) {
+      $aPinned = !empty($a['pinned']) ? 1 : 0;
+      $bPinned = !empty($b['pinned']) ? 1 : 0;
+      if ($aPinned !== $bPinned) {
+        return $bPinned <=> $aPinned;
+      }
+
+      $aTime = isset($a['created_at']) ? strtotime($a['created_at']) : 0;
+      $bTime = isset($b['created_at']) ? strtotime($b['created_at']) : 0;
+      return $bTime <=> $aTime;
+    });
     ?>
     
     <div class="announcements-container">

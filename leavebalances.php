@@ -74,6 +74,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id'], $_POST['le
 $users = json_decode(file_get_contents($users_file), true);
 $leave_types = ['Vacation', 'Sick Leave', 'Birthday Leave', 'Personal Leave', 'Maternity Leave', 'Paternity Leave', 'Other'];
 
+$departments_map = [];
+foreach ($users as $user) {
+  $department = isset($user['department']) && trim($user['department']) !== '' ? trim($user['department']) : 'Unassigned';
+  $departments_map[$department] = true;
+}
+$departments = array_keys($departments_map);
+natcasesort($departments);
+$departments = array_values($departments);
+
 // Helper function to get total leaves for a user's package
 function getTotalLeavesForPackage($package, $leave_type) {
   $totals = [
@@ -117,15 +126,25 @@ function getTotalLeavesForPackage($package, $leave_type) {
   <title>HR Portal - Leave Balances</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    .balance-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    .balance-table thead { background: #2563eb; color: white; }
-    .balance-table th { padding: 12px; text-align: left; }
-    .balance-table td { padding: 12px; border-bottom: 1px solid #e5e7eb; }
-    .balance-table tbody tr:hover { background: #f3f4f6; }
     .message { background: #dcfce7; color: #166534; padding: 12px; border-radius: 5px; margin-bottom: 15px; }
     .error-msg { background: #fee; color: #c33; padding: 12px; border-radius: 5px; margin-bottom: 15px; }
-    .search-box { padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; width: 300px; margin-bottom: 20px; }
-    .edit-btn { background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
+    .filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-bottom: 20px; }
+    .search-box { padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; width: 300px; margin-bottom: 0; }
+    .department-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .department-filter-label { font-weight: 600; color: #374151; }
+    .department-options { display: flex; flex-wrap: wrap; gap: 10px; }
+    .department-option { display: inline-flex; align-items: center; gap: 6px; font-size: 0.92em; color: #374151; }
+    .department-option input[type="radio"] { cursor: pointer; }
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-top: 20px; }
+    .balance-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 3px 14px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s; }
+    .balance-card:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+    .card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px; }
+    .card-name { font-size: 1.1em; font-weight: 600; color: #1f2937; }
+    .card-leave-type { font-size: 0.9em; color: #666; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e5e7eb; }
+    .leave-balance-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
+    .leave-label { color: #374151; font-size: 0.9em; }
+    .leave-days { font-weight: 600; color: #2563eb; font-size: 1em; }
+    .edit-btn { background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em; font-weight: 600; margin-top: 15px; width: 100%; }
     .edit-btn:hover { background: #1d4ed8; }
     .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
     .modal.active { display: flex; justify-content: center; align-items: center; }
@@ -139,6 +158,10 @@ function getTotalLeavesForPackage($package, $leave_type) {
     .modal-btn-save:hover { background: #218838; }
     .modal-btn-close { background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; flex: 1; }
     .modal-btn-close:hover { background: #5a6268; }
+    @media (max-width: 640px) {
+      .search-box { width: 100%; }
+      .filter-row { align-items: stretch; }
+    }
   </style>
 </head>
 <body class="page">
@@ -154,39 +177,48 @@ function getTotalLeavesForPackage($package, $leave_type) {
       <div class="error-msg"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
     
-    <input type="text" class="search-box" id="searchInput" placeholder="Search employee..." />
+    <div class="filter-row">
+      <input type="text" class="search-box" id="searchInput" placeholder="Search employee..." />
+      <div class="department-filter">
+        <span class="department-filter-label">Department:</span>
+        <div class="department-options" id="departmentOptions">
+          <label class="department-option"><input type="radio" name="departmentFilter" value="all" checked> All</label>
+          <?php foreach ($departments as $department): ?>
+            <label class="department-option">
+              <input type="radio" name="departmentFilter" value="<?php echo htmlspecialchars(strtolower($department)); ?>">
+              <?php echo htmlspecialchars($department); ?>
+            </label>
+          <?php endforeach; ?>
+        </div>
+      </div>
+    </div>
     
-    <table class="balance-table">
-      <thead>
-        <tr>
-          <th>Employee</th>
-          <th>Vacation</th>
-          <th>Sick Leave</th>
-          <th>Personal Leave</th>
-          <th>Birthday</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach ($users as $user): ?>
-          <tr class="employee-row">
-            <td><?php echo htmlspecialchars($user['name']); ?></td>
-            <?php
-              $package = isset($user['leave_package']) ? $user['leave_package'] : 'normal';
-              foreach (['Vacation', 'Sick Leave', 'Personal Leave', 'Birthday Leave'] as $type):
-                $total = getTotalLeavesForPackage($package, $type);
-                $used = isset($user['leaves_used'][$type]) ? $user['leaves_used'][$type] : 0;
-                $remaining = ($total === PHP_INT_MAX) ? '∞' : ($total - $used);
-            ?>
-              <td><?php echo htmlspecialchars($remaining); ?> left</td>
-            <?php endforeach; ?>
-            <td>
-              <button class="edit-btn" onclick="openEditModal(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['name']); ?>')">Edit</button>
-            </td>
-          </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
+    <div class="cards-grid" id="cardsContainer">
+      <?php foreach ($users as $user): ?>
+        <div
+          class="balance-card employee-row"
+          data-employee-name="<?php echo htmlspecialchars(strtolower($user['name']), ENT_QUOTES); ?>"
+          data-department="<?php echo htmlspecialchars(strtolower(isset($user['department']) && trim($user['department']) !== '' ? trim($user['department']) : 'Unassigned'), ENT_QUOTES); ?>"
+        >
+          <div class="card-header">
+            <span class="card-name"><?php echo htmlspecialchars($user['name']); ?></span>
+          </div>
+          <?php
+            $package = isset($user['leave_package']) ? $user['leave_package'] : 'normal';
+            foreach (['Vacation', 'Sick Leave', 'Personal Leave', 'Birthday Leave'] as $type):
+              $total = getTotalLeavesForPackage($package, $type);
+              $used = isset($user['leaves_used'][$type]) ? $user['leaves_used'][$type] : 0;
+              $remaining = ($total === PHP_INT_MAX) ? '∞' : ($total - $used);
+          ?>
+            <div class="leave-balance-row">
+              <span class="leave-label"><?php echo htmlspecialchars($type); ?></span>
+              <span class="leave-days"><?php echo htmlspecialchars($remaining); ?> days</span>
+            </div>
+          <?php endforeach; ?>
+          <button class="edit-btn" onclick="openEditModal(<?php echo $user['id']; ?>, '<?php echo htmlspecialchars($user['name']); ?>')">Edit Balance</button>
+        </div>
+      <?php endforeach; ?>
+    </div>
   </main>
 
   <!-- Edit Modal -->
@@ -283,12 +315,22 @@ function getTotalLeavesForPackage($package, $leave_type) {
       updateRemaining(userId);
     });
 
-    document.getElementById('searchInput').addEventListener('input', function() {
-      const filter = this.value.toLowerCase();
-      document.querySelectorAll('.employee-row').forEach(function(row) {
-        const name = row.querySelector('td').textContent.toLowerCase();
-        row.style.display = name.includes(filter) ? '' : 'none';
+    function applyFilters() {
+      const filter = document.getElementById('searchInput').value.toLowerCase();
+      const selectedDepartment = document.querySelector('input[name="departmentFilter"]:checked')?.value || 'all';
+
+      document.querySelectorAll('.employee-row').forEach(function(card) {
+        const employeeName = card.getAttribute('data-employee-name');
+        const employeeDepartment = card.getAttribute('data-department');
+        const matchesSearch = employeeName.includes(filter);
+        const matchesDepartment = selectedDepartment === 'all' || employeeDepartment === selectedDepartment;
+        card.style.display = (matchesSearch && matchesDepartment) ? '' : 'none';
       });
+    }
+
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+    document.querySelectorAll('input[name="departmentFilter"]').forEach(function(radio) {
+      radio.addEventListener('change', applyFilters);
     });
 
     document.getElementById('editModal').addEventListener('click', function(e) {

@@ -34,7 +34,7 @@ th, td { padding: 10px; border-bottom: 1px solid #ebeffa; text-align: left; }
 .search-row { margin-bottom: 14px; }
 .search-row input { width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px; font-size: 0.95rem; }
 .search-row input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
-.user-card { max-width: 500px; margin-bottom: 20px; }
+.user-card { max-width: 530px; margin-bottom: 20px; }
 .date-small { font-size: 0.75rem; color: #9ca3af; margin-bottom: 8px; }
 .user-card h3 { margin-bottom: 12px; color: #1f2937; }
 .user-avatar { display: flex; align-items: center; justify-content: center; width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #2563eb, #1e40af); color: white; font-size: 32px; font-weight: 700; flex-shrink: 0; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
@@ -54,4 +54,16 @@ th, td { padding: 10px; border-bottom: 1px solid #ebeffa; text-align: left; }
   .user-card-header { flex-direction: column; align-items: stretch; }
   .user-card-profile { width: 100%; }
   .profile-edit-btn { width: 100%; justify-content: center; }
+}
+
+/* Admin action buttons */
+.admin-actions { margin-bottom: 10px; }
+.admin-btn { display: inline-block; padding: 10px 14px; border-radius: 8px; color: #ffffff; text-decoration: none; font-weight: 700; box-shadow: 0 6px 18px rgba(15,23,42,0.06); transition: transform 0.12s ease, opacity 0.12s ease; }
+.admin-btn:hover { transform: translateY(-2px); opacity: 0.95; }
+.admin-btn.approve { background: #2563eb; }
+.admin-btn.add { background: #10b981; }
+.admin-btn.report { background: #f59e0b; color: #1f2937; }
+
+@media (max-width: 640px) {
+  .admin-btn { width: 100%; text-align: center; }
 }

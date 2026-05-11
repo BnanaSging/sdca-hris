@@ -690,5 +690,101 @@
         "created_by": "Admin",
         "pinned": 0,
         "expires_at": "2026-07-09T10:57"
+    },
+    {
+        "timestamp": "2026-05-04 00:17:35",
+        "action": "Leave Balance Updated",
+        "user_id": 9,
+        "leave_type": "Paternity Leave",
+        "old_balance": 0,
+        "new_balance": 10,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-05-04 00:19:42",
+        "action": "Leave Balance Updated",
+        "user_id": 1,
+        "leave_type": "Vacation",
+        "old_balance": 0,
+        "new_balance": 1,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-05-04 00:19:48",
+        "action": "Leave Balance Updated",
+        "user_id": 1,
+        "leave_type": "Vacation",
+        "old_balance": 1,
+        "new_balance": 0,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-05-04 03:53:13",
+        "action": "Approve",
+        "leave_id": 21,
+        "leave_type": "Birthday Leave",
+        "employee_name": "Han Solo",
+        "start_date": "2026-07-05",
+        "end_date": "2026-07-05",
+        "approved_by": "Admin",
+        "old_status": "Pending",
+        "new_status": "Approved"
+    },
+    {
+        "timestamp": "2026-05-04 03:53:48",
+        "action": "Approve",
+        "leave_id": 20,
+        "leave_type": "Personal Leave",
+        "employee_name": "Han Solo",
+        "start_date": "2026-05-06",
+        "end_date": "2026-05-08",
+        "approved_by": "Admin",
+        "old_status": "Pending",
+        "new_status": "Approved"
+    },
+    {
+        "timestamp": "2026-05-04 03:54:12",
+        "action": "Leave Balance Updated",
+        "user_id": 9,
+        "leave_type": "Personal Leave",
+        "old_balance": 3,
+        "new_balance": 0,
+        "updated_by": "Admin"
+    },
+    {
+        "timestamp": "2026-05-04 04:09:39",
+        "action": "Announcement Updated",
+        "announcement_id": "1",
+        "title": "Company Holiday Schedule",
+        "updated_by": "Admin",
+        "pinned": 0,
+        "expires_at": null
+    },
+    {
+        "timestamp": "2026-05-04 04:09:43",
+        "action": "Announcement Updated",
+        "announcement_id": "3",
+        "title": "Test",
+        "updated_by": "Admin",
+        "pinned": 1,
+        "expires_at": "2026-07-09T10:57"
+    },
+    {
+        "timestamp": "2026-05-04 04:20:24",
+        "action": "Announcement Updated",
+        "announcement_id": "3",
+        "title": "Test",
+        "updated_by": "Admin",
+        "pinned": 0,
+        "expires_at": "2026-07-09T10:57"
+    },
+    {
+        "timestamp": "2026-05-04 04:20:46",
+        "action": "Announcement Updated",
+        "announcement_id": "2",
+        "title": "Monthly Timesheet Reminder",
+        "updated_by": "Admin",
+        "pinned": 1,
+        "expires_at": null
     }
 ]

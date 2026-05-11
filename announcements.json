@@ -5,9 +5,9 @@
         "content": "New company holiday schedule published. Please check the HR office for the complete list of holidays.",
         "created_by": "Admin",
         "created_at": "2026-05-03 10:30:00",
-        "updated_at": "2026-05-03 02:17:35",
+        "updated_at": "2026-05-04 04:09:39",
         "status": "published",
-        "pinned": 1,
+        "pinned": 0,
         "expires_at": null
     },
     {
@@ -16,9 +16,9 @@
         "content": "Reminder: Submit monthly timesheets by 5 PM Friday. Late submissions will not be accepted.",
         "created_by": "Admin",
         "created_at": "2026-05-01 09:00:00",
-        "updated_at": "2026-05-01 09:00:00",
+        "updated_at": "2026-05-04 04:20:46",
         "status": "published",
-        "pinned": false,
+        "pinned": 1,
         "expires_at": null
     },
     {
@@ -27,7 +27,7 @@
         "content": "This is a test for announcement",
         "created_by": "Admin",
         "created_at": "2026-05-03 02:57:24",
-        "updated_at": "2026-05-03 02:57:24",
+        "updated_at": "2026-05-04 04:20:24",
         "status": "published",
         "pinned": 0,
         "expires_at": "2026-07-09T10:57"

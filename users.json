@@ -106,5 +106,46 @@
         "birthday": "1991-02-02",
         "gender": "male",
         "created_at": "2026-05-03 13:38:37"
+    },
+    {
+        "id": 9,
+        "name": "Han Solo",
+        "email": "hansolo@sdca.edu.ph",
+        "password": "$2y$12$Uykbk3N3S2QKyyjLCoD9bOLIFG0zKubpT0qhGlU2XRO5RxezFiPpW",
+        "position": "Faculty Members",
+        "department": "BACCOM",
+        "leave_package": "normal",
+        "birthday": "1981-07-23",
+        "gender": "male",
+        "created_at": "2026-05-03 23:48:13",
+        "leaves_used": {
+            "Paternity Leave": 10,
+            "Birthday Leave": 1,
+            "Personal Leave": 0
+        }
+    },
+    {
+        "id": 10,
+        "name": "Allene Phoenix Blasco",
+        "email": "allenephoenix_blasco@sdca.edu.ph",
+        "password": "$2y$12$afwTYLqB.mmMrO0dJ83zy.Ty9h31TRpDznL\/g5cgQL5jDUQAM1dty",
+        "position": "Administrative Staff",
+        "department": "BSIT",
+        "leave_package": "normal",
+        "birthday": "2001-11-04",
+        "gender": "male",
+        "created_at": "2026-05-04 05:41:14"
+    },
+    {
+        "id": 11,
+        "name": "christine salisa",
+        "email": "christinesalisa@sdca.edu.ph",
+        "password": "$2y$12$br\/BhsfW7VacuvB0H3oOU.68jNQdZiiugDyu3D9H1ufkykrZBsarS",
+        "position": "Administrative Staff",
+        "department": "BSIT",
+        "leave_package": "newly_hired",
+        "birthday": "2000-01-15",
+        "gender": "male",
+        "created_at": "2026-05-04 05:51:48"
     }
 ]
