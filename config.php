@@ -9,10 +9,33 @@ if (!file_exists($db_file)) {
 }
 
 // Helper functions for JSON database
+function getLeaveTypes() {
+    return [
+        'Vacation' => 'Vacation Leave',
+        'Sick Leave' => 'Sick Leave',
+        'Personal Leave' => 'Personal Leave',
+        'Birthday Leave' => 'Birthday Leave',
+        'Maternity Leave' => 'Maternity Leave',
+        'Paternity Leave' => 'Paternity Leave',
+        'Other' => 'Other Leave'
+    ];
+}
+
 function getUsers() {
     global $db_file;
     $data = json_decode(file_get_contents($db_file), true);
     return $data ?: [];
+}
+
+function formatFullName($user) {
+    if (isset($user['surname']) && isset($user['firstname'])) {
+        $name = $user['surname'] . ', ' . $user['firstname'];
+        if (isset($user['middle_initial']) && !empty($user['middle_initial'])) {
+            $name .= ' ' . $user['middle_initial'] . '.';
+        }
+        return $name;
+    }
+    return $user['name'] ?? 'Unknown';
 }
 
 function findUserByEmail($email) {
@@ -25,7 +48,7 @@ function findUserByEmail($email) {
     return null;
 }
 
-function addUser($name, $email, $password, $position, $department) {
+function addUser($surname, $firstname, $middle_initial, $email, $password, $position, $department) {
     global $db_file;
     $users = getUsers();
     
@@ -36,12 +59,38 @@ function addUser($name, $email, $password, $position, $department) {
         }
     }
     
-        $leave_package = func_num_args() > 5 ? func_get_arg(5) : 'normal';
-        $birthday = func_num_args() > 6 ? func_get_arg(6) : '';
-        $gender = func_num_args() > 7 ? func_get_arg(7) : '';
+        $leave_package = func_num_args() > 7 ? func_get_arg(7) : 'custom';
+        $birthday = func_num_args() > 8 ? func_get_arg(8) : '';
+        $gender = func_num_args() > 9 ? func_get_arg(9) : '';
+        $custom_leaves = func_num_args() > 10 ? func_get_arg(10) : [];
+        
+        // Format full name for backward compatibility
+        $formatted_name = $surname . ', ' . $firstname;
+        if (!empty($middle_initial)) {
+            $formatted_name .= ' ' . $middle_initial . '.';
+        }
+        
+        // Initialize leaves_used - start with 0 for all leave types
+        $leaves_used = [];
+        foreach (getLeaveTypes() as $leave_key => $leave_label) {
+            $leaves_used[$leave_key] = 0;
+        }
+        
+        // Override with custom leave amounts if provided
+        if (is_array($custom_leaves)) {
+            foreach ($custom_leaves as $leave_key => $amount) {
+                if (isset($leaves_used[$leave_key])) {
+                    $leaves_used[$leave_key] = intval($amount);
+                }
+            }
+        }
+        
         $new_user = [
             'id' => count($users) + 1,
-            'name' => $name,
+            'surname' => $surname,
+            'firstname' => $firstname,
+            'middle_initial' => $middle_initial,
+            'name' => $formatted_name,
             'email' => $email,
             'password' => $password,
             'position' => $position,
@@ -49,6 +98,7 @@ function addUser($name, $email, $password, $position, $department) {
             'leave_package' => $leave_package,
             'birthday' => $birthday,
             'gender' => $gender,
+            'leaves_used' => $leaves_used,
             'created_at' => date('Y-m-d H:i:s')
         ];
     

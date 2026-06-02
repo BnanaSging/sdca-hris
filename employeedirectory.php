@@ -101,13 +101,20 @@ $users = getUsers();
     <div id="createUserModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:1000; justify-content:center; align-items:center;">
       <div style="background:#fff; padding:30px 24px 18px 24px; border-radius:8px; min-width:320px; max-width:90vw; position:relative;">
         <h2 style="margin-top:0;">Create User</h2>
-        <form id="createUserForm" action="register-handler.php" method="post" style="display:flex; flex-direction:column; gap:10px;">
-          <label for="modal_name">Full Name</label>
-          <input id="modal_name" name="name" type="text" required />
-          <label for="modal_email">Email</label>
-          <input id="modal_email" name="email" type="email" required />
+        <form id="createUserForm" action="register-handler.php" method="post" style="display:flex; flex-direction:column; gap:10px; max-height: 60vh; overflow-y: auto;">
+          <label for="modal_surname">Surname</label>
+          <input id="modal_surname" name="surname" type="text" required />
+          
+          <label for="modal_firstname">First Name</label>
+          <input id="modal_firstname" name="firstname" type="text" required />
+          
+          <label for="modal_middle_initial">Middle Initial (Optional)</label>
+          <input id="modal_middle_initial" name="middle_initial" type="text" maxlength="1" />
+          <label>Email (Auto-generated)</label>
+          <div id="modal_autoEmail" style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px; font-size: 0.95rem; background: #f9fafb; color: #6b7280; margin-bottom: 8px;">-</div>
+          <input type="hidden" id="modal_email" name="email" />
           <label for="modal_position">Position</label>
-          <select id="modal_position" name="position" required>
+          <select id="modal_position" name="position" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px;">
             <option value="VPAA">VPAA</option>
             <option value="Dean">Dean </option>
             <option value="Program Chair">Program Chair</option>
@@ -115,7 +122,7 @@ $users = getUsers();
             <option value="Administrative Staff">Administrative Staff</option>
           </select>
           <label for="modal_department">Department</label>
-          <select id="modal_department" name="department" required>
+          <select id="modal_department" name="department" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px;">
             <option value="BSIT">BSIT</option>
             <option value="BMMA">BMMA</option>
             <option value="BACCOM">BACCOM</option>
@@ -125,17 +132,22 @@ $users = getUsers();
           <input id="modal_birthday" name="birthday" type="date" required />
 
           <label for="modal_gender">Gender</label>
-          <select id="modal_gender" name="gender" required>
+          <select id="modal_gender" name="gender" required style="width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px;">
             <option value="male">Male</option>
             <option value="female">Female</option>
           </select>
 
-          <label for="modal_leave_package">Leave Package</label>
-          <select id="modal_leave_package" name="leave_package" required>
-            <option value="normal">Normal Employee Package (15 VL, 15 SL, 1 BL, 15 PL)</option>
-            <option value="newly_hired">Newly Hired (3 VL, 3 SL, 1 BL)</option>
-            <option value="custom">Custom Package</option>
-          </select>
+          <fieldset style="border: 1px solid #e5e7eb; padding: 12px; border-radius: 8px; background: #f9fafb;">
+            <legend style="font-weight: 600; padding: 0 8px; color: #374151; font-size: 0.9rem;">Leave Allocation (Days)</legend>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <?php foreach (getLeaveTypes() as $leave_key => $leave_label): ?>
+              <div>
+                <label for="modal_leave_<?php echo str_replace(' ', '_', strtolower($leave_key)); ?>" style="font-size: 0.8rem;"><?php echo htmlspecialchars($leave_label); ?></label>
+                <input type="number" id="modal_leave_<?php echo str_replace(' ', '_', strtolower($leave_key)); ?>" name="leave_<?php echo str_replace(' ', '_', strtolower($leave_key)); ?>" min="0" value="0" style="width: 100%; border: 1px solid #d1d5db; border-radius: 6px; padding: 8px;" />
+              </div>
+              <?php endforeach; ?>
+            </div>
+          </fieldset>
           <label for="modal_password">Password</label>
           <input id="modal_password" name="password" type="password" required />
           <label for="modal_confirm_password">Confirm Password</label>
@@ -148,6 +160,30 @@ $users = getUsers();
         <button onclick="closeModal()" style="position:absolute; top:8px; right:12px; background:none; border:none; font-size:1.5em; color:#888; cursor:pointer;">&times;</button>
       </div>
     </div>
+  <script>
+    // Auto-generate email as user types in modal
+    function updateModalAutoEmail() {
+      const surname = document.getElementById('modal_surname').value.toLowerCase().trim();
+      const firstname = document.getElementById('modal_firstname').value.toLowerCase().trim();
+      const emailDisplay = document.getElementById('modal_autoEmail');
+      const emailInput = document.getElementById('modal_email');
+      if (firstname && surname) {
+        const email = firstname + surname + '@sdca.edu.ph';
+        emailDisplay.textContent = email;
+        emailInput.value = email;
+      } else {
+        emailDisplay.textContent = '-';
+        emailInput.value = '';
+      }
+    }
+    document.getElementById('modal_surname').addEventListener('input', updateModalAutoEmail);
+    document.getElementById('modal_firstname').addEventListener('input', updateModalAutoEmail);
+    // Also update on modal open
+    function openModal() {
+      document.getElementById('createUserModal').style.display = 'flex';
+      updateModalAutoEmail();
+    }
+  </script>
   <script>
             // Employee details modal logic
             document.addEventListener('DOMContentLoaded', function() {
@@ -206,13 +242,9 @@ $users = getUsers();
       <input type="hidden" name="user_id" id="addLeaveUserId" value="">
       <label for="leaveTypeSelect"><strong>Leave Type:</strong></label>
       <select name="leave_type" id="leaveTypeSelect" required>
-        <option value="Vacation">Vacation</option>
-        <option value="Sick Leave">Sick Leave</option>
-        <option value="Personal Leave">Personal Leave</option>
-        <option value="Birthday Leave">Birthday Leave</option>
-        <option value="Maternity Leave">Maternity Leave</option>
-        <option value="Paternity Leave">Paternity Leave</option>
-        <option value="Other">Other</option>
+        <?php foreach (getLeaveTypes() as $leave_key => $leave_label): ?>
+        <option value="<?php echo htmlspecialchars($leave_key); ?>"><?php echo htmlspecialchars($leave_label); ?></option>
+        <?php endforeach; ?>
       </select>
       <label for="leaveAmountInput"><strong>Amount to Add:</strong></label>
       <input type="number" name="amount" id="leaveAmountInput" min="1" required style="width:80px;">
