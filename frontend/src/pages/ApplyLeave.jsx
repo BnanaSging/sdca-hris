@@ -292,7 +292,7 @@ export default function ApplyLeave() {
                     type="button"
                     key={t.value}
                     className={`leave-type-card${active ? ' active' : ''}`}
-                    style={active ? { borderColor: info.color, background: info.bg } : {}}
+                    style={active ? { borderColor: info.color, '--active-bg': info.bg } : {}}
                     onClick={() =>
                       handleChange({ target: { name: 'leaveType', value: t.value } })
                     }

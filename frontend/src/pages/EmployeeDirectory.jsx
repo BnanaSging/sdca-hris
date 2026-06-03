@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { useAuth } from '../contexts/AuthContext';
+import EmployeeProfileDetails from '../components/EmployeeProfileDetails';
 
 // Positions allowed to view the full employee directory
 const AUTHORIZED_POSITIONS = [
@@ -74,7 +75,7 @@ export default function EmployeeDirectory() {
       <div className="dashboard">
         <h1>Employee Directory</h1>
         <div className="emp-access-denied">
-          <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>🔒</div>
+          <div style={{ fontSize: '2.5rem', marginBottom: 12 }}><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
           <h2>Access Restricted</h2>
           <p>The employee directory is only accessible to Program Chairs and above.</p>
         </div>
@@ -126,8 +127,8 @@ export default function EmployeeDirectory() {
                       {emp.id === currentUser?.uid && <span className="leave-own-badge">You</span>}
                     </div>
                   </td>
-                  <td className="leave-td">{emp.department || '—'}</td>
-                  <td className="leave-td">{emp.position || '—'}</td>
+                  <td className="leave-td">{emp.department || 'â€”'}</td>
+                  <td className="leave-td">{emp.position || 'â€”'}</td>
                   <td className="leave-td" style={{ color: '#6b7280' }}>{emp.email}</td>
                   <td className="leave-td">
                     <span className="emp-role-badge" data-role={emp.role?.toLowerCase()}>
@@ -141,7 +142,7 @@ export default function EmployeeDirectory() {
         </div>
       )}
 
-      {/* ── Employee Profile Modal ── */}
+      {/* â”€â”€ Employee Profile Modal â”€â”€ */}
       {selected && (
         <div className="modal-overlay" onClick={() => setSelected(null)}>
           <div className="modal-card" style={{ maxWidth: 480 }} onClick={e => e.stopPropagation()}>
@@ -151,17 +152,17 @@ export default function EmployeeDirectory() {
                 <div>
                   <h2 style={{ margin: 0 }}>{selected.name}</h2>
                   <p style={{ margin: '4px 0 0', color: '#6b7280', fontSize: '0.88rem' }}>
-                    {selected.position}{selected.department ? ` — ${selected.department}` : ''}
+                    {selected.position}{selected.department ? ` â€” ${selected.department}` : ''}
                   </p>
                 </div>
               </div>
-              <button className="modal-close" onClick={() => setSelected(null)}>×</button>
+              <button className="modal-close" onClick={() => setSelected(null)}>Ã—</button>
             </div>
             <div className="modal-body">
               <div className="emp-profile-grid">
                 <div className="modal-field">
                   <span className="modal-field-label">Email</span>
-                  <span className="modal-field-value">{selected.email || '—'}</span>
+                  <span className="modal-field-value">{selected.email || 'â€”'}</span>
                 </div>
                 <div className="modal-field">
                   <span className="modal-field-label">Role</span>
@@ -169,23 +170,23 @@ export default function EmployeeDirectory() {
                 </div>
                 <div className="modal-field">
                   <span className="modal-field-label">Department</span>
-                  <span className="modal-field-value">{selected.department || '—'}</span>
+                  <span className="modal-field-value">{selected.department || 'â€”'}</span>
                 </div>
                 <div className="modal-field">
                   <span className="modal-field-label">Position</span>
-                  <span className="modal-field-value">{selected.position || '—'}</span>
+                  <span className="modal-field-value">{selected.position || 'â€”'}</span>
                 </div>
                 <div className="modal-field">
                   <span className="modal-field-label">Gender</span>
-                  <span className="modal-field-value" style={{ textTransform: 'capitalize' }}>{selected.gender || '—'}</span>
+                  <span className="modal-field-value" style={{ textTransform: 'capitalize' }}>{selected.gender || 'â€”'}</span>
                 </div>
                 <div className="modal-field">
                   <span className="modal-field-label">Birthday</span>
-                  <span className="modal-field-value">{selected.birthday || '—'}</span>
+                  <span className="modal-field-value">{selected.birthday || 'â€”'}</span>
                 </div>
                 <div className="modal-field" style={{ gridColumn: '1 / -1' }}>
                   <span className="modal-field-label">Member Since</span>
-                  <span className="modal-field-value">{selected.createdAt ? new Date(selected.createdAt).toLocaleDateString() : '—'}</span>
+                  <span className="modal-field-value">{selected.createdAt ? new Date(selected.createdAt).toLocaleDateString() : 'â€”'}</span>
                 </div>
               </div>
             </div>
@@ -195,3 +196,4 @@ export default function EmployeeDirectory() {
     </div>
   );
 }
+

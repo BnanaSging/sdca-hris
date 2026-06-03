@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 
 const AuthContext = createContext();
 
@@ -39,12 +39,36 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('mockUserId', userId);
     setCurrentUser({ uid: userId, email: data.email });
     setUserData(data);
+
+    try {
+      await addDoc(collection(db, 'audit_logs'), {
+        action: 'User Logged In',
+        performedBy: data.name || data.email || 'Unknown User',
+        timestamp: new Date().toISOString(),
+        details: `User with email ${data.email} logged in successfully.`
+      });
+    } catch (e) {
+      console.error('Failed to log audit:', e);
+    }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const userName = userData?.name || currentUser?.email || 'Unknown User';
+    
     localStorage.removeItem('mockUserId');
     setCurrentUser(null);
     setUserData(null);
+
+    try {
+      await addDoc(collection(db, 'audit_logs'), {
+        action: 'User Logged Out',
+        performedBy: userName,
+        timestamp: new Date().toISOString(),
+        details: `User logged out successfully.`
+      });
+    } catch (e) {
+      console.error('Failed to log audit:', e);
+    }
   };
 
   const value = {

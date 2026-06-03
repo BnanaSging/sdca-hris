@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, addDoc, getDocs } from 'firebase/firestore';
 import { useNavigate, Link } from 'react-router-dom';
@@ -17,21 +17,29 @@ export default function Register() {
     gender: 'male',
     supervisorId: ''
   });
-  const [supervisors, setSupervisors] = useState([]);
+    const [supervisors, setSupervisors] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [positions, setPositions] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
-        const snap = await getDocs(collection(db, 'users'));
-        setSupervisors(snap.docs.map(d => ({ id: d.id, name: d.data().name, position: d.data().position })));
+        const [usersSnap, deptsSnap, posSnap] = await Promise.all([
+          getDocs(collection(db, 'users')),
+          getDocs(collection(db, 'departments')),
+          getDocs(collection(db, 'positions'))
+        ]);
+        setSupervisors(usersSnap.docs.map(d => ({ id: d.id, name: d.data().name, position: d.data().position })));
+        setDepartments(deptsSnap.docs.map(d => d.data().name));
+        setPositions(posSnap.docs.map(d => ({ title: d.data().title, dept: d.data().department })));
       } catch (e) {
-        console.error('Could not load supervisors:', e);
+        console.error('Could not load data:', e);
       }
     };
-    fetchUsers();
+    fetchData();
   }, []);
 
   const handleChange = (e) => {
@@ -82,78 +90,28 @@ export default function Register() {
           <label>Full Name</label>
           <input type="text" name="name" value={formData.name} onChange={handleChange} required />
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-            <div>
-              <label>Department</label>
-              <select name="department" value={formData.department} onChange={handleChange} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', marginTop: '4px' }}>
-                <option value="IT">IT</option>
-                <option value="HR">HR</option>
-                <option value="Finance">Finance</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Academic">Academic</option>
-                <option value="Administration">Administration</option>
-              </select>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div>
+                <label>Department</label>
+                <select name="department" value={formData.department} onChange={handleChange} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', marginTop: '4px' }}>
+                  {departments.length === 0 && <option value="IT">IT</option>}
+                  {departments.map((d, i) => (
+                    <option key={i} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label>Position</label>
+                <select name="position" value={formData.position} onChange={handleChange} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', marginTop: '4px' }}>
+                  <option value="">— Select position —</option>
+                  {positions
+                    .filter(p => !p.dept || p.dept === formData.department || p.dept === 'Any / Not Specified' || p.dept === 'Any')
+                    .map((p, i) => (
+                      <option key={i} value={p.title}>{p.title}</option>
+                    ))}
+                </select>
+              </div>
             </div>
-            <div>
-              <label>Position</label>
-              <select name="position" value={formData.position} onChange={handleChange} required style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', marginTop: '4px' }}>
-                <option value="">— Select position —</option>
-                <optgroup label="Executive">
-                  <option>President</option>
-                  <option>Vice President</option>
-                  <option>Vice President for Academic Affairs (VPAA)</option>
-                  <option>Vice President for Administration</option>
-                  <option>Vice President for Finance</option>
-                </optgroup>
-                <optgroup label="Academic">
-                  <option>Dean</option>
-                  <option>Associate Dean</option>
-                  <option>Program Chair / Department Head</option>
-                  <option>Professor</option>
-                  <option>Associate Professor</option>
-                  <option>Assistant Professor</option>
-                  <option>Instructor</option>
-                  <option>Lecturer</option>
-                  <option>Laboratory Instructor</option>
-                  <option>Teacher / Faculty Member</option>
-                  <option>School Registrar</option>
-                  <option>Guidance Counselor</option>
-                  <option>School Nurse</option>
-                  <option>Librarian</option>
-                </optgroup>
-                <optgroup label="Administrative">
-                  <option>HR Manager</option>
-                  <option>HR Officer</option>
-                  <option>HR Assistant</option>
-                  <option>Administrative Officer</option>
-                  <option>Administrative Assistant</option>
-                  <option>Executive Assistant</option>
-                  <option>Records Officer</option>
-                  <option>Cashier</option>
-                  <option>Accounting Officer</option>
-                  <option>Bookkeeper</option>
-                  <option>Finance Officer</option>
-                  <option>Payroll Officer</option>
-                  <option>IT Officer</option>
-                  <option>IT Support Specialist</option>
-                  <option>Facilities Officer</option>
-                  <option>Security Officer</option>
-                  <option>Utility / Maintenance Staff</option>
-                  <option>Driver</option>
-                  <option>Canteen Staff</option>
-                </optgroup>
-                <optgroup label="Support Services">
-                  <option>Enrollment Officer</option>
-                  <option>Student Affairs Officer</option>
-                  <option>Marketing Officer</option>
-                  <option>Public Relations Officer</option>
-                  <option>Communications Officer</option>
-                  <option>Research Coordinator</option>
-                  <option>Extension Services Coordinator</option>
-                </optgroup>
-              </select>
-            </div>
-          </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div>
@@ -171,7 +129,7 @@ export default function Register() {
 
           <label>Direct Supervisor</label>
           <select name="supervisorId" value={formData.supervisorId} onChange={handleChange} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', marginBottom: '6px' }}>
-            <option value="">— None (Top-level / No supervisor) —</option>
+            <option value="">â€” None (Top-level / No supervisor) â€”</option>
             {supervisors.map(s => (
               <option key={s.id} value={s.id}>{s.name}{s.position ? ` (${s.position})` : ''}</option>
             ))}
@@ -200,4 +158,6 @@ export default function Register() {
     </div>
   );
 }
+
+
 

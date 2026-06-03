@@ -31,6 +31,9 @@ export default function LeaveList() {
     userData?.position?.toLowerCase() === 'admin' ||
     EXEC_POSITIONS.includes(position);
 
+  const isITHead = userData?.department === 'IT' && 
+    (position === 'it officer' || position.includes('director') || position.includes('head') || position.includes('chair'));
+
   const fetchLeaves = useCallback(async () => {
     try {
       setLoading(true);
@@ -46,7 +49,25 @@ export default function LeaveList() {
         // Subordinate leaves (supervisorId stored on each leave at submission time)
         const subSnap = await getDocs(query(collection(db, 'leaves'), where('supervisorId', '==', currentUser.uid)));
         const subLeaves = subSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(l => l.userId !== currentUser.uid);
-        results = [...results, ...subLeaves];
+        
+        let itLeaves = [];
+        if (isITHead) {
+          const itSnap = await getDocs(query(collection(db, 'leaves'), where('userDepartment', '==', 'IT')));
+          itLeaves = itSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(l => l.userId !== currentUser.uid);
+        }
+
+        results = [...results, ...subLeaves, ...itLeaves];
+
+        // Ensure no duplicates
+        const uniqueResults = [];
+        const seen = new Set();
+        for (const l of results) {
+          if (!seen.has(l.id)) {
+            seen.add(l.id);
+            uniqueResults.push(l);
+          }
+        }
+        results = uniqueResults;
       }
       results.sort((a, b) => new Date(b.requestedAt) - new Date(a.requestedAt));
       setLeaves(results);
@@ -55,7 +76,7 @@ export default function LeaveList() {
     } finally {
       setLoading(false);
     }
-  }, [currentUser, isAdmin]);
+  }, [currentUser, isAdmin, isITHead]);
 
   useEffect(() => { fetchLeaves(); }, [fetchLeaves]);
 
@@ -85,8 +106,12 @@ export default function LeaveList() {
     }
   };
 
-  // Only admin or the assigned supervisor can approve/deny
-  const canApprove = (leave) => isAdmin || leave.supervisorId === currentUser.uid;
+  // Only admin/exec, the assigned supervisor, or the IT Head (for IT department) can approve/deny
+  const canApprove = (leave) => {
+    if (isAdmin) return true;
+    if (leave.userDepartment === 'IT') return isITHead;
+    return leave.supervisorId === currentUser.uid;
+  };
 
   const hasSubordinates = leaves.some(l => l.userId !== currentUser.uid);
 
