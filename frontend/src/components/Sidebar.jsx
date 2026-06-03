@@ -59,6 +59,11 @@ export default function Sidebar() {
           <span style={{ marginRight: '10px' }}></span> Payroll & Payslips
         </NavLink>
         {isAdmin && (
+          <NavLink to="/reports" className={({isActive}) => `nav-link ${isActive ? "active" : ""}`}>
+            <span style={{ marginRight: '10px' }}></span> Reports
+          </NavLink>
+        )}
+        {isAdmin && (
           <NavLink to="/audit" className={({isActive}) => `nav-link ${isActive ? "active" : ""}`}>
             <span style={{ marginRight: '10px' }}></span> Audit Logs
           </NavLink>

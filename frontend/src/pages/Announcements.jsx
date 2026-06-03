@@ -49,7 +49,7 @@ export default function Announcements() {
 
   useEffect(() => { fetchAnnouncements(); }, []);
 
-  const fetchAnnouncements = async () => {
+  async function fetchAnnouncements() {
     try {
       setLoading(true);
       const q = query(collection(db, 'announcements'), orderBy('createdAt', 'desc'));

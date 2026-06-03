@@ -29,11 +29,7 @@ export default function Notifications() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
 
-  useEffect(() => {
-    fetchNotifications();
-  }, [currentUser]);
-
-  const fetchNotifications = async () => {
+  async function fetchNotifications() {
     if (!currentUser) return;
     try {
       setLoading(true);
@@ -50,6 +46,10 @@ export default function Notifications() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [currentUser]);
 
   const markAsRead = async (id) => {
     try {

@@ -41,7 +41,7 @@ export default function Payroll() {
   });
 
   const fetchData = useCallback(async () => {
-    setLoading(true);
+    // setLoading is already initialized to true
     try {
       if (isFinanceOrHR) {
         // Fetch all payslips
@@ -64,7 +64,8 @@ export default function Payroll() {
   }, [currentUser, isFinanceOrHR]);
 
   useEffect(() => {
-    fetchData();
+    const load = async () => await fetchData();
+    load();
   }, [fetchData]);
 
   const handleCalculate = () => {

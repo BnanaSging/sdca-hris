@@ -36,7 +36,7 @@ export default function LeaveList() {
 
   const fetchLeaves = useCallback(async () => {
     try {
-      setLoading(true);
+      // initial load state was already true, but let's be safe
       let results = [];
       if (isAdmin) {
         // Admin sees everything
@@ -78,7 +78,10 @@ export default function LeaveList() {
     }
   }, [currentUser, isAdmin, isITHead]);
 
-  useEffect(() => { fetchLeaves(); }, [fetchLeaves]);
+  useEffect(() => { 
+    const load = async () => await fetchLeaves();
+    load(); 
+  }, [fetchLeaves]);
 
   const handleUpdateStatus = async (leaveId, newStatus, leave) => {
     try {

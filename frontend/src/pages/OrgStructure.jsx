@@ -20,7 +20,7 @@ export default function OrgStructure() {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
+  async function fetchData() {
     setLoading(true);
     try {
       const [usersSnap, deptsSnap, posSnap] = await Promise.all([

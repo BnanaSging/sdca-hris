@@ -44,8 +44,11 @@ export default function EmployeeDirectory() {
   const authorized = canViewDirectory(userData);
 
   useEffect(() => {
-    if (!authorized) { setLoading(false); return; }
     const fetchEmployees = async () => {
+      if (!authorized) { 
+        setLoading(false); 
+        return; 
+      }
       try {
         const snap = await getDocs(collection(db, 'users'));
         const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
