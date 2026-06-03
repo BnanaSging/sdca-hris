@@ -1,9 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { db } from '../firebase';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
 
 export default function Sidebar() {
-  const { userData } = useAuth();
+  const { userData, currentUser } = useAuth();
+  const [unreadCount, setUnreadCount] = useState(0);
   const position = userData?.position?.toLowerCase() || '';
   const EXEC_POSITIONS = [
     'president', 'vp', 'vpaa',
@@ -18,6 +22,17 @@ export default function Sidebar() {
     userData?.role?.toLowerCase() === 'superadmin' ||
     EXEC_POSITIONS.includes(position);
 
+  useEffect(() => {
+    if (!currentUser) return;
+    const q = query(
+      collection(db, 'notifications'),
+      where('userId', '==', currentUser.uid),
+      where('read', '==', false),
+    );
+    const unsub = onSnapshot(q, snap => setUnreadCount(snap.size));
+    return () => unsub();
+  }, [currentUser]);
+
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
@@ -29,6 +44,12 @@ export default function Sidebar() {
         </NavLink>
         <NavLink to="/announcements" className={({isActive}) => `nav-link ${isActive ? "active" : ""}`}>
           <span style={{ marginRight: '10px' }}></span> Announcements
+        </NavLink>
+        <NavLink to="/notifications" className={({isActive}) => `nav-link ${isActive ? "active" : ""}`}>
+          <span style={{ marginRight: '10px' }}>🔔</span> Notifications
+          {unreadCount > 0 && (
+            <span className="sidebar-notif-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
+          )}
         </NavLink>
         {isAdmin && (
           <NavLink to="/employees" className={({isActive}) => `nav-link ${isActive ? "active" : ""}`}>

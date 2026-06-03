@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { DarkModeProvider } from './contexts/DarkModeContext';
 import Sidebar from './components/Sidebar';
 import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
@@ -11,6 +12,7 @@ import LeaveList from './pages/LeaveList';
 import ApplyLeave from './pages/ApplyLeave';
 import AuditLogs from './pages/AuditLogs';
 import Announcements from './pages/Announcements';
+import Notifications from './pages/Notifications';
 import './App.css';
 
 const PrivateRoute = ({ children }) => {
@@ -39,6 +41,7 @@ function AppRoutes() {
           <Route path="/leave" element={<PrivateRoute><LeaveList /></PrivateRoute>} />
           <Route path="/apply-leave" element={<PrivateRoute><ApplyLeave /></PrivateRoute>} />
           <Route path="/audit" element={<PrivateRoute><AuditLogs /></PrivateRoute>} />
+          <Route path="/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
         </Routes>
       </main>
@@ -50,9 +53,11 @@ function AppRoutes() {
 function App() {
   return (
     <Router>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
+      <DarkModeProvider>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </DarkModeProvider>
     </Router>
   );
 }

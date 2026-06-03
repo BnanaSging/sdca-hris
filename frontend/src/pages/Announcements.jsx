@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { db, storage } from '../firebase';
-import { collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
+import {
+  collection, addDoc, getDocs, deleteDoc, doc,
+  query, orderBy, writeBatch,
+} from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -117,6 +120,34 @@ export default function Announcements() {
         details: `Created announcement: "${formData.title}"`,
         timestamp: new Date().toISOString(),
       });
+
+      // Determine notification type (holiday keywords → 'holiday', else 'announcement')
+      const titleLower = formData.title.toLowerCase();
+      const notifType = titleLower.includes('holiday') || titleLower.includes('no class') || titleLower.includes('suspension')
+        ? 'holiday'
+        : 'announcement';
+
+      // Create a notification for every user
+      try {
+        const usersSnap = await getDocs(collection(db, 'users'));
+        const batch = writeBatch(db);
+        usersSnap.docs.forEach(userDoc => {
+          const notifRef = doc(collection(db, 'notifications'));
+          batch.set(notifRef, {
+            userId: userDoc.id,
+            type: notifType,
+            title: formData.title,
+            message: formData.content.length > 120
+              ? formData.content.slice(0, 120) + '…'
+              : formData.content,
+            read: false,
+            createdAt: new Date().toISOString(),
+          });
+        });
+        await batch.commit();
+      } catch (notifErr) {
+        console.error('Error creating announcement notifications:', notifErr);
+      }
       setFormData({ title: '', content: '', pinned: false, expiresAt: '' });
       removeMedia();
       setUploadProgress(0);

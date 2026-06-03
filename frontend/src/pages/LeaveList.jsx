@@ -68,6 +68,16 @@ export default function LeaveList() {
         details: `${leave.leaveType} leave for ${leave.userName} was ${newStatus.toLowerCase()}.`,
         timestamp: new Date().toISOString(),
       });
+      // Create leave approval notification for the employee
+      await addDoc(collection(db, 'notifications'), {
+        userId: leave.userId,
+        type: 'leave_approval',
+        title: `Leave ${newStatus}`,
+        message: `Your ${leave.leaveType} leave request (${leave.startDate} → ${leave.endDate}) has been ${newStatus.toLowerCase()}.`,
+        read: false,
+        createdAt: new Date().toISOString(),
+        relatedId: leaveId,
+      });
       setSelected(null);
       fetchLeaves();
     } catch (err) {
