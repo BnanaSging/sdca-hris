@@ -17,7 +17,6 @@ import AuditLogs from './pages/AuditLogs';
 import Announcements from './pages/Announcements';
 import Notifications from './pages/Notifications';
 import OrgStructure from './pages/OrgStructure';
-import Payroll from './pages/Payroll';
 import Reports from './pages/Reports';
 import './App.css';
 
@@ -128,7 +127,6 @@ function AppRoutes() {
           <Route path="/org-structure" element={<AdminRoute><OrgStructure /></AdminRoute>} />
           <Route path="/leave" element={<PrivateRoute><LeaveList /></PrivateRoute>} />
           <Route path="/apply-leave" element={<PrivateRoute><ApplyLeave /></PrivateRoute>} />
-          <Route path="/payroll" element={<PrivateRoute><Payroll /></PrivateRoute>} />
           <Route path="/reports" element={<AdminRoute><Reports /></AdminRoute>} />
           <Route path="/audit" element={<AdminRoute><AuditLogs /></AdminRoute>} />
           <Route path="/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />

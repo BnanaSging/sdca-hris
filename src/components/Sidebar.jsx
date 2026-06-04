@@ -55,9 +55,6 @@ export default function Sidebar() {
         <NavLink to="/apply-leave" className={({isActive}) => `nav-link ${isActive ? "active" : ""}`}>
           <span style={{ marginRight: '10px' }}></span> Leave Application
         </NavLink>
-        <NavLink to="/payroll" className={({isActive}) => `nav-link ${isActive ? "active" : ""}`}>
-          <span style={{ marginRight: '10px' }}></span> Payroll & Payslips
-        </NavLink>
         {isAdmin && (
           <NavLink to="/reports" className={({isActive}) => `nav-link ${isActive ? "active" : ""}`}>
             <span style={{ marginRight: '10px' }}></span> Reports
