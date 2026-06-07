@@ -81,7 +81,7 @@ export default function Dashboard() {
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 5px 0' }}>Total Employees</p>
           <h2 style={{ fontSize: '2.2rem', margin: 0, color: 'var(--text-primary)' }}>{stats.employees}</h2>
         </Link>
-        <Link to="/org" className="card" style={{ textDecoration: 'none', color: 'inherit', borderLeft: '4px solid #8b5cf6', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <Link to="/org-structure" className="card" style={{ textDecoration: 'none', color: 'inherit', borderLeft: '4px solid #8b5cf6', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 5px 0' }}>Active Departments</p>
           <h2 style={{ fontSize: '2.2rem', margin: 0, color: 'var(--text-primary)' }}>{stats.totalDepartments}</h2>
         </Link>

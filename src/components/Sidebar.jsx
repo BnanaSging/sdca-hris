@@ -50,7 +50,7 @@ export default function Sidebar() {
           </NavLink>
         )}
         <NavLink to="/leave" className={({isActive}) => `nav-link ${isActive ? "active" : ""}`}>
-          <span style={{ marginRight: '10px' }}></span> Leave Managementasd
+          <span style={{ marginRight: '10px' }}></span> Leave Management
         </NavLink>
         <NavLink to="/apply-leave" className={({isActive}) => `nav-link ${isActive ? "active" : ""}`}>
           <span style={{ marginRight: '10px' }}></span> Leave Application

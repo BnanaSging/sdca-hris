@@ -7,8 +7,8 @@ import { useAuth } from '../contexts/AuthContext';
 export default function Register() {
   const { login } = useAuth();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    firstName: '',
+    lastName: '',
     password: '',
     confirmPassword: '',
     department: 'IT',
@@ -54,9 +54,11 @@ export default function Register() {
     try {
       setLoading(true);
       setError('');
+      const fullName = `${formData.firstName} ${formData.lastName}`;
+      const email = `${formData.firstName.toLowerCase()}${formData.lastName.toLowerCase()}@sdca.edu.ph`;
       const userData = {
-        name: formData.name,
-        email: formData.email,
+        name: fullName,
+        email,
         password: formData.password,
         department: formData.department,
         position: formData.position,
@@ -87,8 +89,28 @@ export default function Register() {
         {error && <div style={{ background: '#fee2e2', color: '#b91c1c', padding: '10px', borderRadius: '6px', marginBottom: '15px' }}>{error}</div>}
 
         <form className="login-form" onSubmit={handleRegister}>
-          <label>Full Name</label>
-          <input type="text" name="name" value={formData.name} onChange={handleChange} required />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div>
+              <label>First Name</label>
+              <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} required />
+            </div>
+            <div>
+              <label>Last Name</label>
+              <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} required />
+            </div>
+          </div>
+          <label>Email (auto-generated)</label>
+          <input
+            type="text"
+            readOnly
+            value={
+              formData.firstName || formData.lastName
+                ? `${formData.firstName.toLowerCase()}${formData.lastName.toLowerCase()}@sdca.edu.ph`
+                : ''
+            }
+            placeholder="firstname+lastname@sdca.edu.ph"
+            style={{ background: '#f3f4f6', color: '#6b7280', cursor: 'not-allowed' }}
+          />
 
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               <div>
@@ -134,9 +156,6 @@ export default function Register() {
               <option key={s.id} value={s.id}>{s.name}{s.position ? ` (${s.position})` : ''}</option>
             ))}
           </select>
-
-          <label>Email</label>
-          <input type="email" name="email" value={formData.email} onChange={handleChange} required />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
             <div>
